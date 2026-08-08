@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Scratch root images (keep traces/ and data/ outputs)
+debug_1b.png
+debug_2.png
+orientation_isogons.png
+orientation_isogons_test2.png
+test_fold_*.png
