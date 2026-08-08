@@ -1,0 +1,7 @@
+pyproject.toml
+src/foldclass/__init__.py
+src/foldclass.egg-info/PKG-INFO
+src/foldclass.egg-info/SOURCES.txt
+src/foldclass.egg-info/dependency_links.txt
+src/foldclass.egg-info/requires.txt
+src/foldclass.egg-info/top_level.txt

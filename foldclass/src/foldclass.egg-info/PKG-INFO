@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: foldclass
+Version: 0.1.0
+Summary: Automated Ramsay classification of folds from field photographs
+Requires-Python: >=3.11
+Requires-Dist: numpy
+Requires-Dist: scipy
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
