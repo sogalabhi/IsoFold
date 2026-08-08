@@ -20,15 +20,9 @@ Detailed domain theory, equations, and morphological definitions from structural
 ### [Chapter 2: Technical Architecture & Critical Decisions](02_TECHNICAL_ARCHITECTURE.md)
 Software engineering design, core technology stack, and methodological principles:
 - **Package Stack**: Python 3.11+, NumPy, SciPy, Matplotlib, scikit-image, PyQt6, pytest.
-- **8 Critical Engineering Decisions**:
-  1. *Never compute curvature on raw pixels* (Tangent-angle formulation $\phi(s)$).
-  2. *Fit $t_0$ and $R$ jointly* (Never single-point division).
-  3. *Limb-restricted search & monotonicity assertions*.
-  4. *Hudleston Case 1 fixed-point iteration & Case 2/3 offset diagnostics*.
-  5. *Independent limb analysis* (Reporting left and right limbs separately).
-  6. *Chevron fold $\alpha$-coverage guard* ($30^\circ$ minimum span).
-  7. *Synthetic ground truth test harness* (`synthetic.py`).
-  8. *Portability to C++ core* (NumPy + SciPy ONLY in `geometry.py`).
+- **8 Critical Engineering Decisions**: Curvature-free tangent formulation $\phi(s)$, joint $t_0, R$ fit, limb disambiguation, Case 1 fixed-point iteration, C++ portability.
+- **Automated Synthetic Test Suite**: 8 unit test invariants in `test_geometry.py` (scaling/rotation invariance, $t_\alpha/T_\alpha = \cos\alpha$, projection bound $t_\alpha \le |pq|$, oblique distance disambiguation, prominence filtering, chevron guard, Case 2 diagnostic).
+- **50-Fold Synthetic Round-Trip Verification**: 100% confusion matrix classification accuracy across all 5 Ramsay classes.
 
 ### [Chapter 3: User Guide & CLI Command Reference](03_USER_GUIDE_AND_CLI.md)
 Complete user manual for interactive GUI tracing, automated CLI tools, and multi-layer analysis:
