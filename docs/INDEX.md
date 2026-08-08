@@ -47,6 +47,13 @@ Semester 2 roadmap, C++ porting specification, and offline mobile app design:
 - **Offline Flutter Mobile App**: Architecture for field surveyors (iOS/Android), on-device camera sectioning assistant, offline SQLite/SpatiaLite database for structural outcrop measurements.
 - **Future TODO List & Stretch Goals**: 3D profile extrusion, automatic multi-layer stack strain mapping, Fourier F-T chart calibration against Hatui & Chattopadhyay Fig 11c.
 
+### [Chapter 6: In-Depth Mathematical Proofs & Code Walkthrough](06_IN_DEPTH_MATHEMATICAL_PROOFS_AND_CODE_WALKTHROUGH.md)
+Objective mathematical proofs, line-by-line code walk, system demonstration workflow, and technical FAQ:
+- **4 Formal Mathematical Proofs**: Projection bound $t_\alpha \le |pq|$, OLS joint least-squares fit & delta method $\sigma_R$, Case 1 fixed-point iteration convergence, and Case 2 offset diagnostic derivation.
+- **Line-by-Line Code Explanations**: Detailed breakdown of `fit_arc`, `find_inflections`, `find_hinge`, `isogon_pairs`, `fit_thickness_law`, and `classify` in `geometry.py`.
+- **System Demonstration Workflow**: Step-by-step commands for executing system demonstrations.
+- **Frequently Asked Technical & Methodological Questions (FAQ)**: Pre-formulated technical Q&A.
+
 ---
 
 ## Quick Reference Cheat Sheet
