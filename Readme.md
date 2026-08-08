@@ -1,9 +1,9 @@
-# Automated Ramsay Classification of Folds from Field Photographs
+# IsoFold: Automated Ramsay Classification of Folds from Field Photographs
 
 > [!NOTE]
 > 📖 **Full Documentation Suite**: For the detailed structural geology textbook guide, technical architecture, user manual, CLI commands, and API specifications, see the **[docs/INDEX.md](docs/INDEX.md)**.
 
-## What this project is
+## What IsoFold is
 
 A tool that takes a photograph of a geological fold in **profile section** (a face cut perpendicular to the fold axis) and returns:
 

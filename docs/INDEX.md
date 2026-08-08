@@ -1,6 +1,6 @@
-# Automated Ramsay Fold Classification & Geometry Core Documentation
+# IsoFold: Automated Ramsay Fold Classification & Geometry Core Documentation
 
-Welcome to the comprehensive documentation for the **Automated Ramsay Classification of Folds from Field Photographs** project.
+Welcome to the comprehensive documentation for **IsoFold** (Automated Ramsay Classification of Folds from Field Photographs).
 
 This documentation suite serves as both a **structural geology textbook guide** and a **complete software engineering manual** for measuring, classifying, and diagnosing geological folds in profile section.
 
