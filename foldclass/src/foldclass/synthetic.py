@@ -15,6 +15,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from . import config
 from . import geometry as geo
 
 
@@ -149,12 +150,41 @@ def make_variable_R(outer_xy: np.ndarray, x: np.ndarray, amplitude_ratio: float,
     return build(correction)
 
 
+def perturb_boundary(points: np.ndarray, sigma: float, seed: int | None = None) -> np.ndarray:
+    """Inject 2D Gaussian noise into boundary points (sigma in pixels).
+    Shared noise generator for sensitivity analysis and sweep benchmarks."""
+    if sigma <= 0.0:
+        return points.copy()
+    rng = np.random.default_rng(seed)
+    noise = rng.normal(loc=0.0, scale=sigma, size=points.shape)
+    return points + noise
+
+
 def generate(R: float, t0: float = 25.0, scale: float = 100.0, amplitude_ratio: float = 1.1,
-             half_width_rad: float = 1.3, n_points: int = 400, refine: bool = True) -> SyntheticFold:
+             half_width_rad: float = 1.6, n_points: int = 400, refine: bool = True) -> SyntheticFold:
     """Generate a single-hinge synthetic fold at the given R (Readme.md
     thickness law: t'_alpha = R + (1-R)*cos(alpha)). R=1.0 and R=0.0 use
     the exact constructions (Class 1B, Class 2); everything else uses the
-    normal-offset construction with iterative refinement."""
+    normal-offset construction with iterative refinement.
+
+    Raises ValueError if t0 is not well below the base curve's radius of
+    curvature at the hinge (scale / amplitude_ratio, from y=-amplitude_ratio*
+    cos(x) scaled by `scale`): a parallel-curve offset that exceeds the
+    radius of curvature of the curve it offsets develops a cusp/self-
+    intersection (an envelope, in the differential-geometry sense) --
+    confirmed empirically at t0/scale ratios near this bound, where the
+    inner boundary's own points collapse onto each other. This is a real
+    limit of the normal-offset construction, not a geometry.py artifact;
+    it constrains what this generator can produce, not what geometry.py
+    can measure."""
+    radius_of_curvature = scale / amplitude_ratio
+    if t0 >= config.CUSP_SAFETY_MARGIN * radius_of_curvature:
+        raise ValueError(
+            f"t0={t0:.1f}px is too large relative to the base curve's radius of "
+            f"curvature at the hinge (~{radius_of_curvature:.1f}px for scale={scale:.1f}, "
+            f"amplitude_ratio={amplitude_ratio:.2f}): the normal-offset inner boundary "
+            "would self-intersect (cusp). Lower t0, raise scale, or lower amplitude_ratio."
+        )
     outer_xy, x = base_outer_curve(scale=scale, amplitude_ratio=amplitude_ratio,
                                     half_width_rad=half_width_rad, n_points=n_points)
     if abs(R - 1.0) < 1e-9:
@@ -173,4 +203,5 @@ def limited_coverage_fold(t0: float = 20.0, scale: float = 100.0) -> SyntheticFo
     and stays there"). Used to test that classify() refuses rather than
     reporting a number built on a couple of alpha values."""
     return generate(R=1.0, t0=t0, scale=scale, amplitude_ratio=0.75,
-                     half_width_rad=1.4, n_points=400, refine=False)
+                     half_width_rad=1.3, n_points=400, refine=False)
+
