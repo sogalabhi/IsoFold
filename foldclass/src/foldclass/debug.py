@@ -37,9 +37,10 @@ def debug_pipeline(outer_pts: np.ndarray,
         Dict containing intermediate results from each stage and error metrics.
     """
     if smoothing_o is None:
-        smoothing_o = 0.05 * len(outer_pts)
+        smoothing_o = config.SPLINE_SMOOTHING_RATIO * len(outer_pts)
     if smoothing_i is None:
-        smoothing_i = 0.05 * len(inner_pts)
+        smoothing_i = config.SPLINE_SMOOTHING_RATIO * len(inner_pts)
+
 
     # Stage 1: Arc fitting
     outer_arc = geo.fit_arc(outer_pts, smoothing=smoothing_o)
