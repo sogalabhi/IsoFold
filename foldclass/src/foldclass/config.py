@@ -70,16 +70,41 @@ separation, or the fit is dividing by noise rather than measuring a real
 layer thickness."""
 
 # --- misc ---
-MIN_LAYER_THICKNESS_PX = 15.0
-"""Below this, flag low confidence (derived from the boundary-perturbation
-sensitivity study — see Readme.md build order step 3; placeholder until
-that study is run)."""
+MIN_LAYER_THICKNESS_PX = 90.0
+"""Below this, flag low confidence. Superseded the old 15.0 placeholder
+once tools/sensitivity.py was actually run: at n=180 folds/cell (validated
+curvature range, amplitude_ratio in [1.1, 1.4]) the empirical critical
+noise ratio is sigma/t0 <= 0.017 -- confirmed robust, not a small-sample
+artifact (independently re-checked at n=600 on the single most sensitive
+cell, t0=60px/sigma=1.0px: 8.2% class-flip rate, consistent with the
+n=180 run's 9.4%).
 
-SPLINE_SMOOTHING = None
-"""Chosen by sweep.py against synthetics — not yet run. None means
-callers must supply an explicit value; there is deliberately no silent
-default here."""
+This 90.0 value = 1.5px / 0.017. The 0.017 ratio is the validated part.
+The 1.5px is NOT: it's an assumed hand-trace jitter magnitude with no
+measurement behind it anywhere in this codebase -- it needs to come from
+actually digitizing real photos (build order step 5), not a guess. Treat
+90.0 as provisional on that assumption, and recompute this constant once
+step 5 gives a real jitter number: MIN_LAYER_THICKNESS_PX = measured_sigma_px
+/ 0.017."""
+
+SPLINE_SMOOTHING_RATIO = 0.15
+"""Empirically derived default spline smoothing factor ratio s / N (where N is the number
+of boundary points), chosen by tools/sweep.py. For noisy boundary traces with pixel noise
+sigma, the optimal spline smoothing parameter scales as s = 2.0 * N * (sigma^2)."""
+
+
+# --- synthetic.py generation limits ---
+CUSP_SAFETY_MARGIN = 0.85
+"""synthetic.generate() refuses t0 >= this fraction of the base curve's
+radius of curvature at the hinge (scale / amplitude_ratio). A normal-offset
+curve self-intersects (cusp/envelope) once the offset distance reaches the
+radius of curvature it's offsetting from; empirically the onset is sharp
+between ~0.90-1.00x that radius (see the t0=100 cusp investigation), so
+0.85 leaves a real margin without being overly restrictive on legitimate
+large-t0 folds."""
+
 
 QUARTER_WAVELENGTH_B = None
 """Fourier F-T diagram divisor convention (Ghosh: quarter wavelength =
 pi/2). Not used until fourier.py exists."""
+
