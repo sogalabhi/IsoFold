@@ -164,6 +164,21 @@ def test_inflection_prominence_filtering():
     assert len(inflections_strict) <= len(inflections_loose)
 
 
+def test_sigma_calibration():
+    """estimate_smoothing's internal sigma^2 estimator should recover injected
+    boundary noise variance (median(||d3||^2) / (20*2*ln2), not /20 -- d3 sums
+    two noise components, so the median-unbiased divisor uses chi2(2))."""
+    fold = syn.generate(R=1.0, t0=25.0, scale=100.0)
+    clean = fold.outer_xy
+    for true_sigma in (1.0, 2.0, 3.0):
+        estimates = []
+        for seed in range(20):
+            noisy = syn.perturb_boundary(clean, sigma=true_sigma, seed=seed)
+            d3 = noisy[3:] - 3.0 * noisy[2:-1] + 3.0 * noisy[1:-2] - noisy[:-3]
+            estimates.append(np.median(np.sum(d3 ** 2, axis=1)) / (20.0 * 2.0 * np.log(2.0)))
+        assert np.isclose(np.mean(estimates), true_sigma ** 2, rtol=0.15)
+
+
 def test_case_diagnostic():
     """case_diagnostic should return beta ~= 0 for Case 1 synthetics."""
     fold = syn.generate(R=1.0, t0=25.0)
