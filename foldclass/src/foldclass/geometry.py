@@ -45,14 +45,40 @@ class Arc:
     tck: tuple              # underlying spline
 
 
-def fit_arc(points: np.ndarray, smoothing: float, n_samples: int = 800) -> Arc:
+def estimate_smoothing(points: np.ndarray) -> float:
+    """Estimate optimal spline smoothing factor s from third finite differences of
+    ordered boundary points. Third differences isolate high-frequency pixel jitter
+    from smooth geometric curvature (O(h^3) ~ 0 for smooth curves), enabling robust,
+    noise-adaptive spline fitting without requiring caller-supplied noise parameters."""
+    N = len(points)
+    if N < 4:
+        return config.SPLINE_SMOOTHING_RATIO * N
+    d3 = points[3:] - 3.0 * points[2:-1] + 3.0 * points[1:-2] - points[:-3]
+    # ||d3||^2 sums two iid noise-driven components, each ~20*sigma^2 * chi2(1);
+    # their sum is 20*sigma^2 * chi2(2), whose median is 20*sigma^2 * 2*ln(2).
+    # Dividing by that (not by 20) is what makes the median-based estimator
+    # unbiased for sigma^2 -- see test_geometry.py::test_sigma_calibration.
+    sigma2_est = float(np.median(np.sum(d3 ** 2, axis=1)) / (20.0 * 2.0 * np.log(2.0)))
+    return float(max(2.0 * N * sigma2_est, config.SPLINE_SMOOTHING_RATIO * N))
+
+
+
+
+def fit_arc(points: np.ndarray, smoothing: float | None = None, n_samples: int = 800) -> Arc:
     """Fit a smoothing spline to ordered boundary points and resample
     densely. Tangent angles come from the spline's analytic first
     derivative — never from finite differences on pixels (Critical
-    decision 1)."""
+    decision 1). If smoothing is None, estimates optimal s from boundary
+    point third finite differences and auto-adjusts if spurious inflections exist."""
+
     points = np.asarray(points, dtype=float)
     if len(points) < 4:
         raise ValueError(f"need at least 4 points to fit a cubic spline, got {len(points)}")
+
+    auto_adjust = (smoothing is None)
+    if smoothing is None:
+        smoothing = estimate_smoothing(points)
+
     tck, _ = splprep([points[:, 0], points[:, 1]], s=smoothing)
     u = np.linspace(0.0, 1.0, n_samples)
     x, y = splev(u, tck)
@@ -61,7 +87,26 @@ def fit_arc(points: np.ndarray, smoothing: float, n_samples: int = 800) -> Arc:
     s = np.concatenate([[0.0], np.cumsum(np.hypot(seg[:, 0], seg[:, 1]))])
     dx, dy = splev(u, tck, der=1)
     phi = np.unwrap(np.arctan2(dy, dx))
-    return Arc(s=s, xy=xy, phi=phi, tck=tck)
+    arc = Arc(s=s, xy=xy, phi=phi, tck=tck)
+
+    # Inflection-guided auto-smoothing fallback: single hinge limbs should have 0 inflections
+    if auto_adjust:
+        max_tries = 5
+        while len(find_inflections(arc)) > 0 and max_tries > 0:
+            smoothing *= 2.0
+            tck, _ = splprep([points[:, 0], points[:, 1]], s=smoothing)
+            x, y = splev(u, tck)
+            xy = np.column_stack([x, y])
+            seg = np.diff(xy, axis=0)
+            s = np.concatenate([[0.0], np.cumsum(np.hypot(seg[:, 0], seg[:, 1]))])
+            dx, dy = splev(u, tck, der=1)
+            phi = np.unwrap(np.arctan2(dy, dx))
+            arc = Arc(s=s, xy=xy, phi=phi, tck=tck)
+            max_tries -= 1
+
+    return arc
+
+
 
 
 def xy_at(arc: Arc, s_query: float) -> np.ndarray:
