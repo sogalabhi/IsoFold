@@ -50,15 +50,16 @@ def process_image_cli(img_path: Path,
     img = plt.imread(img_path)
 
     # Seed hinge at nose (min y point)
-    outer_arc = geo.fit_arc(outer_pts, smoothing=len(outer_pts)*4.0)
-    inner_arc = geo.fit_arc(inner_pts, smoothing=len(inner_pts)*4.0)
+    outer_arc = geo.fit_arc(outer_pts, smoothing=config.SPLINE_SMOOTHING_RATIO * len(outer_pts))
+    inner_arc = geo.fit_arc(inner_pts, smoothing=config.SPLINE_SMOOTHING_RATIO * len(inner_pts))
 
     s_ho_seed = float(outer_arc.s[np.argmin(outer_arc.xy[:, 1])])
     s_hi_seed = float(inner_arc.s[np.argmin(inner_arc.xy[:, 1])])
     seed_hinge = (s_ho_seed, s_hi_seed)
 
-    sm_o = smoothing if smoothing is not None else len(outer_pts) * 10.0
-    sm_i = smoothing if smoothing is not None else len(inner_pts) * 10.0
+    sm_o = smoothing if smoothing is not None else config.SPLINE_SMOOTHING_RATIO * len(outer_pts)
+    sm_i = smoothing if smoothing is not None else config.SPLINE_SMOOTHING_RATIO * len(inner_pts)
+
 
     debug_png = output_dir / f"{stem}_debug.png"
     results = debug_pipeline(outer_pts, inner_pts, smoothing_o=sm_o, smoothing_i=sm_i,
