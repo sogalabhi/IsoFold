@@ -41,11 +41,11 @@ Detailed source code walkthroughs, function signatures, data structures, and mod
   - `debug.py`: `debug_pipeline` and 6-panel grid visualizer.
   - `plots.py`: `plot_annotated_fold` and `plot_publication_figure`.
 
-### [Chapter 5: Future Roadmap & Offline Mobile App](05_FUTURE_ROADMAP_AND_MOBILE_APP.md)
-Semester 2 roadmap, C++ porting specification, and offline mobile app design:
-- **Semester 2 C++ Geometry Port**: C++20 refactoring using `Eigen`/`xtensor` and wrapping with `pybind11` / Dart FFI.
-- **Offline Flutter Mobile App**: Architecture for field surveyors (iOS/Android), on-device camera sectioning assistant, offline SQLite/SpatiaLite database for structural outcrop measurements.
-- **Future TODO List & Stretch Goals**: 3D profile extrusion, automatic multi-layer stack strain mapping, Fourier F-T chart calibration against Hatui & Chattopadhyay Fig 11c.
+### [Chapter 5: Multi-Phase Roadmap: C++20 Core Engine, Desktop Qt GUI & Mobile App Architecture](05_FUTURE_ROADMAP_AND_MOBILE_APP.md)
+Comprehensive multi-phase roadmap across Semester 1 and Semester 2:
+- **Semester 1 C++20 Engine & Desktop Qt GUI**: C++20 geometry core (`isofold-cpp` using `Eigen3` & `tinyspline`), `pybind11` Python bindings (`cpp/src/bindings.cpp`), PyQt6 desktop application (`tools/qt_app.py`), Fourier shape engine, and synthetic test harness.
+- **Semester 2 Offline Flutter Mobile App**: Field app architecture (`isofold_mobile`), Dart FFI native bridge, gyroscopic camera sectioning guide, offline SQLite/SpatiaLite outcrop structural database.
+- **Future TODO List & Stretch Goals**: 3D profile extrusion, automatic multi-layer stack strain mapping, Fourier F-T chart numerical calibration against Hatui & Chattopadhyay Fig 11c.
 
 ### [Chapter 6: In-Depth Mathematical Proofs & Code Walkthrough](06_IN_DEPTH_MATHEMATICAL_PROOFS_AND_CODE_WALKTHROUGH.md)
 Objective mathematical proofs, line-by-line code walk, system demonstration workflow, and technical FAQ:
