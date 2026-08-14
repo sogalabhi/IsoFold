@@ -12,8 +12,8 @@ A tool that takes a photograph of a geological fold in **profile section** (a fa
 3. An **annotated diagram** showing traced boundaries, inflection points, hinge points, axial trace, dip isogons and interlimb angle
 4. Diagnostic plots: the t′α–α field diagram and the b₁–b₃ Hudleston chart
 
-Semester 1 (this semester): a validated Python core plus a desktop tool.
-Semester 2: port the geometry core to C++ and wrap it in an offline Flutter mobile app for field surveyors.
+Semester 1 (this semester): validated Python geometry core, native C++20 geometry engine (`isofold-cpp`), `pybind11` Python bindings, Fourier shape analysis engine, and interactive Desktop PyQt6 GUI application.
+Semester 2 (next semester): offline Flutter mobile application (`isofold_mobile`) for field surveyors with Dart FFI bindings, offline SQLite outcrop DB, and gyroscopic camera sectioning overlay.
 
 **This is a measurement problem, not a classification problem.** Ramsay's classes are hard inequalities on a measured quantity. Once two clean boundary curves are extracted, the class follows deterministically. There is no machine learning anywhere in this project.
 
@@ -264,7 +264,7 @@ There is no model to train. Synthetic folds exist to:
 
 ### 8. Keep `geometry.py` portable
 
-It must import **only numpy and scipy**. No OpenCV, no matplotlib, no I/O. This module is ported to C++ next semester and the Python version is its test oracle. Every extra dependency makes the port harder.
+It must import **only numpy and scipy**. No OpenCV, no matplotlib, no I/O. This module is ported to C++20 (`isofold-cpp`) with `pybind11` Python bindings in Semester 1, and the Python version serves as its test oracle. Every extra dependency makes the port harder.
 
 ---
 
