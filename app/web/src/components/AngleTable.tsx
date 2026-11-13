@@ -2,6 +2,7 @@
 // and why an angle could not be measured.
 import type { HandMeasurement, Limb, Result } from '../types'
 import { angleColor, inFitRange } from '../geometry'
+import { Rich } from './Tex'
 
 const LIMBS: Limb[] = ['left', 'right']
 
@@ -58,7 +59,9 @@ export function AngleTable({ result, angles, hand }: { result: Result; angles: n
           })}
         </tbody>
       </table>
-      <div className="atable-foot">t′α = t_α / t₀ (orthogonal thickness, normalised by the thickness at the hinge)</div>
+      <div className="atable-foot">
+        <Rich text="Each cell: $t'_\alpha = t_\alpha / t_0$ (bold) and $t_\alpha$ in px. $t_0$ is the thickness at the hinge." />
+      </div>
     </div>
   )
 }

@@ -1,77 +1,86 @@
 // A small "?" that explains a term on hover or keyboard focus. The popover is rendered into <body> with fixed
-// positioning so scrolling panels never clip it.
+// positioning so scrolling panels never clip it. Text in $…$ is rendered as LaTeX.
 import { useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { Rich } from './Tex'
 
 export const GLOSSARY = {
   R: {
     title: 'R: the thickness ratio',
     body: [
       'One number that says how the bed thins or thickens around the fold.',
-      'The engine fits t′α = R + (1 − R) cos α to the measured thicknesses.',
-      'R = 1: thickness stays the same everywhere (parallel fold). R = 0: thickness falls exactly like cos α (similar fold). In between: the limbs thin, but less than in a similar fold.',
-      'Equivalently, fitting t_α = A + B cos α gives R = A / (A + B): the share of the hinge thickness that does not depend on dip.',
+      "The engine fits $t'_\\alpha = R + (1 - R)\\cos\\alpha$ to the measured thicknesses.",
+      '$R = 1$: thickness stays the same everywhere (parallel fold). $R = 0$: thickness falls exactly like $\\cos\\alpha$ (similar fold). In between: the limbs thin, but less than in a similar fold.',
+      'Equivalently, fitting $t_\\alpha = A + B\\cos\\alpha$ gives $R = \\frac{A}{A+B}$: the share of the hinge thickness that does not depend on dip.',
     ],
   },
   classes: {
     title: 'How the class is decided',
     body: [
-      "Ramsay's classes compare the t′α curve with two reference curves: t′α = 1 (parallel fold) and t′α = cos α (similar fold).",
-      'With R that becomes: R > 1 → 1A · R ≈ 1 → 1B · 0 < R < 1 → 1C · R ≈ 0 → 2 · R < 0 → 3.',
-      '"≈" means within ±0.05, or ±2σ of R if that is larger, so a value right at a boundary is not forced into a neighbouring class.',
+      "Ramsay's classes compare the $t'_\\alpha$ curve with two reference curves: $t'_\\alpha = 1$ (parallel fold) and $t'_\\alpha = \\cos\\alpha$ (similar fold).",
+      'With $R$ that becomes: $R > 1$ → 1A · $R \\approx 1$ → 1B · $0 < R < 1$ → 1C · $R \\approx 0$ → 2 · $R < 0$ → 3.',
+      '$\\approx$ means within $\\pm 0.05$, or $\\pm 2\\sigma_R$ if that is larger, so a value right at a boundary is not forced into a neighbouring class.',
       'Each limb is classified on its own; if they disagree, both are shown.',
     ],
   },
   tprime: {
-    title: 't′α: normalised thickness',
+    title: "t'α: normalised thickness",
     body: [
-      't_α is the orthogonal thickness of the bed where both edges dip α: the distance between the two parallel tangents at p and q.',
-      't′α = t_α / t₀ divides it by the thickness at the hinge, so beds of any size can be compared. t′ = 1 means as thick as at the hinge.',
+      '$t_\\alpha$ is the orthogonal thickness of the bed where both edges dip $\\alpha$: the distance between the two parallel tangents at $p_\\alpha$ and $q_\\alpha$.',
+      "$t'_\\alpha = \\dfrac{t_\\alpha}{t_0}$ divides it by the thickness at the hinge, so beds of any size can be compared. $t' = 1$ means as thick as at the hinge.",
     ],
   },
   Tprime: {
-    title: 'T′α: thickness along the axial trace',
-    body: ['T_α is the thickness measured parallel to the axial trace instead of perpendicular to the layer. T′α = T_α / t₀.', 'For a similar fold (Class 2) T′α stays 1.'],
+    title: "T'α: thickness along the axial trace",
+    body: [
+      "$T_\\alpha$ is the thickness measured parallel to the axial trace instead of perpendicular to the layer: $T'_\\alpha = \\dfrac{T_\\alpha}{t_0}$.",
+      "For a similar fold (Class 2) $T'_\\alpha$ stays 1.",
+    ],
   },
   t0: {
     title: 't₀: thickness at the hinge',
-    body: ['The orthogonal thickness of the bed at the hinge, between the tangents at H (outer edge) and G (inner edge). Every other thickness is divided by it.'],
+    body: ['The orthogonal thickness of the bed at the hinge, between the tangents at $H$ (outer edge) and $G$ (inner edge). Every other thickness is divided by it.'],
   },
   isogon: {
     title: 'Dip isogon',
     body: [
-      'A line joining the points on the outer and inner edge of a bed where both edges have the same dip α.',
+      'A line joining the points on the outer and inner edge of a bed where both edges have the same dip $\\alpha$.',
       'Converging isogons (towards the core) → Class 1. Parallel → Class 2. Diverging → Class 3.',
       'The angles you pick only choose which isogons are drawn and listed; the class always uses every 2.5° from 20° to 70°.',
     ],
   },
   alpha: {
     title: 'Dip α',
-    body: ['The angle between the tangent to the layer and the tangent at the hinge. α = 0° at the hinge and grows down each limb.', 'Only 20°–70° is used for R: near the hinge thicknesses barely differ, and near the inflection tangents are hard to match.'],
+    body: [
+      'The angle between the tangent to the layer and the tangent at the hinge. $\\alpha = 0^\\circ$ at the hinge and grows down each limb.',
+      'Only 20°–70° is used for $R$: near the hinge thicknesses barely differ, and near the inflection tangents are hard to match.',
+    ],
   },
   confidence: {
     title: 'Confident or low confidence',
     body: [
-      'Confident: both limbs give the same class, R is clearly inside it, and the bed is thick enough in the photo.',
-      'Low confidence: the limbs disagree, R sits right on a class boundary, the bed is thinner than 90 px, or the lines touch or cross. The reasons are listed under the result.',
+      'Confident: both limbs give the same class, $R$ is clearly inside it, and the bed is thick enough in the photo.',
+      'Low confidence: the limbs disagree, $R$ sits right on a class boundary, the bed is thinner than 90 px, or the lines touch or cross. The reasons are listed under the result.',
       'Information notes (grey) never lower confidence.',
     ],
   },
   rscale: {
     title: 'Where R sits',
-    body: ['The bar runs from R = −0.5 to 1.5 with the class bands. L and R mark the left and right limb, with ±σ whiskers. A marker near a band edge means the fold is close to the next class.'],
+    body: [
+      'The bar runs from $R = -0.5$ to $1.5$ with the class bands. L and R mark the left and right limb, with $\\pm\\sigma_R$ whiskers. A marker near a band edge means the fold is close to the next class.',
+    ],
   },
   chart: {
     title: 'Ramsay diagram',
     body: [
-      't′α plotted against dip α. The flat line t′ = 1 is a parallel fold (1B); the dashed curve t′ = cos α is a similar fold (2).',
+      "$t'_\\alpha$ plotted against dip $\\alpha$. The flat line $t' = 1$ is a parallel fold (1B); the dashed curve $t' = \\cos\\alpha$ is a similar fold (2).",
       'Points above the flat line → 1A; between the two → 1C; below the dashed curve → 3.',
-      'Dots and triangles are the engine’s measurements on each limb; the solid curves are the fitted t′α = R + (1 − R) cos α; diamonds are the hand measurements.',
+      "Dots and triangles are the engine's measurements on each limb; the solid curves are the fitted $t'_\\alpha = R + (1 - R)\\cos\\alpha$; diamonds are the hand measurements.",
     ],
   },
   hinge: {
     title: 'Hinge points H and G',
-    body: ['H (outer edge) and G (inner edge) are where each edge’s tangent is perpendicular to the axial trace; the line through them is the axial trace.'],
+    body: ["$H$ (outer edge) and $G$ (inner edge) are where each edge's tangent is perpendicular to the axial trace; the line through them is the axial trace."],
   },
 } as const
 
@@ -119,7 +128,9 @@ export function Help({ term }: { term: Term }) {
           <div ref={pop} className="help-pop" role="tooltip" style={pos ? { left: pos.left, top: pos.top } : { left: -9999, top: 0 }}>
             <div className="help-title">{g.title}</div>
             {g.body.map((t) => (
-              <p key={t}>{t}</p>
+              <p key={t}>
+                <Rich text={t} />
+              </p>
             ))}
           </div>,
           document.body,

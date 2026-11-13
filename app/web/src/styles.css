@@ -1950,3 +1950,42 @@ code {
 .rule-meaning {
   font-size: 13px;
 }
+
+/* ---------- KaTeX ---------- */
+.tex .katex {
+  font-size: 1.08em;
+}
+.tex-display {
+  display: block;
+  margin: 6px 0 10px;
+}
+.tex-display .katex-display {
+  margin: 0;
+  text-align: left;
+}
+.sheet-table th .katex {
+  font-size: 1.05em;
+  color: var(--ink);
+}
+.sheet-table th {
+  vertical-align: bottom;
+}
+.help-pop .katex {
+  font-size: 1.05em;
+}
+.worked-example {
+  margin-top: 12px;
+  background: var(--paper-2);
+}
+.worked-example .tex-display {
+  margin: 2px 0;
+}
+.small-title {
+  font: 600 11px var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.rule-test .katex {
+  font-size: 1em;
+}

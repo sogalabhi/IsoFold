@@ -7,6 +7,7 @@ import { hingeFoot } from '../construction'
 import { CLASS_MEANING } from './ClassCard'
 import { IconX } from './Icons'
 import { Help } from './Help'
+import { Rich, Tex } from './Tex'
 
 const RAD = Math.PI / 180
 const f = (v: number | null | undefined, n = 3) => (v == null || !isFinite(v) ? '–' : v.toFixed(n))
@@ -27,11 +28,11 @@ function fitR(rows: { a: number; tp: number }[]) {
 }
 
 const RULES = (w: number) => [
-  { cls: '1A', test: (R: number) => R > 1 + w, text: `R > 1 + ${w}` },
-  { cls: '1B', test: (R: number) => Math.abs(R - 1) <= w, text: `R = 1 ± ${w}` },
-  { cls: '1C', test: (R: number) => R > w && R < 1 - w, text: `0 < R < 1` },
-  { cls: '2', test: (R: number) => Math.abs(R) <= w, text: `R = 0 ± ${w}` },
-  { cls: '3', test: (R: number) => R < -w, text: `R < 0` },
+  { cls: '1A', test: (R: number) => R > 1 + w, tex: `R > 1` },
+  { cls: '1B', test: (R: number) => Math.abs(R - 1) <= w, tex: `R = 1 \\pm ${w}` },
+  { cls: '1C', test: (R: number) => R > w && R < 1 - w, tex: `0 < R < 1` },
+  { cls: '2', test: (R: number) => Math.abs(R) <= w, tex: `R = 0 \\pm ${w}` },
+  { cls: '3', test: (R: number) => R < -w, tex: `R < 0` },
 ]
 
 interface Props {
@@ -67,6 +68,8 @@ export function WorkedSheet({ result, angles, hand, title, onClose }: Props) {
   const Rmine = fitR(used)
   const all = chart.rows.map(([a, t, T]) => ({ a, t, T, tp: t / t0 }))
   const rule = RULES(w).find((r) => r.test(L.R!))
+  const ex = rows.find((r) => r.iso && r.iso.t_prime != null && inFitRange(r.a))
+  const example = ex ? { a: ex.a, iso: ex.iso!, tp: ex.iso!.t_prime!, c: Math.cos(ex.a * RAD) } : null
 
   return (
     <div className="sheet" role="dialog" aria-label="Worked calculation">
@@ -92,7 +95,7 @@ export function WorkedSheet({ result, angles, hand, title, onClose }: Props) {
           <div className="step-no">1</div>
           <div>
             <h3>
-              Thickness at the hinge, t₀ <Help term="t0" />
+              Thickness at the hinge, <Tex tex="t_0" /> <Help term="t0" />
             </h3>
             <p>
               Orthogonal thickness of the bed at the hinge, between the parallel tangents at H (outer edge) and G (inner edge).
@@ -102,7 +105,7 @@ export function WorkedSheet({ result, angles, hand, title, onClose }: Props) {
                 measured between the hinge tangents: <b className="mono">{f(t0Hinge, 0)} px</b>
               </div>
               <div>
-                fitted t₀ for the {limb} limb (thickness law at α = 0): <b className="mono">t₀ = {f(t0, 1)} px</b> ← used below
+                fitted for the {limb} limb (thickness law at <Tex tex="\alpha = 0" />): <Tex tex={`t_0 = ${f(t0, 1)}\\ \\text{px}`} /> ← used below
               </div>
             </div>
           </div>
@@ -115,21 +118,38 @@ export function WorkedSheet({ result, angles, hand, title, onClose }: Props) {
               Isogons at your angles <Help term="tprime" /> <Help term="Tprime" />
             </h3>
             <p>
-              For each α: the tangents on the outer and inner edge that dip α from the hinge tangent give p and q. t_α is the
-              orthogonal thickness between those tangents, T_α the thickness parallel to the axial trace. Dividing by t₀ normalises them.
+              <Rich text="For each $\alpha$: the tangents on the outer and inner edge that dip $\alpha$ from the hinge tangent touch the edges at $p_\alpha$ and $q_\alpha$. $t_\alpha$ is the orthogonal thickness between those two parallel tangents, $T_\alpha$ the thickness measured parallel to the axial trace. Dividing by $t_0$ normalises them." />
             </p>
             <div className="sheet-table-wrap">
               <table className="sheet-table">
                 <thead>
                   <tr>
-                    <th>α</th>
-                    <th>cos α</th>
-                    <th>t_α (px)</th>
-                    <th>T_α (px)</th>
-                    <th>t′α = t_α / t₀</th>
-                    <th>T′α = T_α / t₀</th>
-                    <th>R_α = (t′α − cos α) / (1 − cos α)</th>
-                    {hand && <th>hand t′α</th>}
+                    <th>
+                      <Tex tex="\alpha" />
+                    </th>
+                    <th>
+                      <Tex tex="\cos\alpha" />
+                    </th>
+                    <th>
+                      <Tex tex="t_\alpha" /> (px)
+                    </th>
+                    <th>
+                      <Tex tex="T_\alpha" /> (px)
+                    </th>
+                    <th>
+                      <Tex tex="t'_\alpha = \dfrac{t_\alpha}{t_0}" />
+                    </th>
+                    <th>
+                      <Tex tex="T'_\alpha = \dfrac{T_\alpha}{t_0}" />
+                    </th>
+                    <th>
+                      <Tex tex="R_\alpha = \dfrac{t'_\alpha - \cos\alpha}{1 - \cos\alpha}" />
+                    </th>
+                    {hand && (
+                      <th>
+                        hand <Tex tex="t'_\alpha" />
+                      </th>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
@@ -159,6 +179,16 @@ export function WorkedSheet({ result, angles, hand, title, onClose }: Props) {
               </table>
             </div>
             {rows.some((r) => !inFitRange(r.a)) && <p className="small">Rows shaded grey are outside 20–70° and are not used for R.</p>}
+            {example && (
+              <div className="calc worked-example">
+                <div className="small-title">Worked example: the {example.a}° row</div>
+                <Tex display tex={`t'_{${example.a}} = \\frac{t_{${example.a}}}{t_0} = \\frac{${f(example.iso.t_px, 1)}}{${f(t0, 1)}} = ${f(example.tp)}`} />
+                <Tex
+                  display
+                  tex={`R_{${example.a}} = \\frac{t'_{${example.a}} - \\cos ${example.a}^\\circ}{1 - \\cos ${example.a}^\\circ} = \\frac{${f(example.tp)} - ${f(example.c)}}{1 - ${f(example.c)}} = ${f(Ra(example.tp, example.a))}`}
+                />
+              </div>
+            )}
           </div>
         </section>
 
@@ -168,28 +198,25 @@ export function WorkedSheet({ result, angles, hand, title, onClose }: Props) {
             <h3>
               The ratio R <Help term="R" />
             </h3>
+            <p>Ramsay's thickness law relates the normalised thickness to the dip:</p>
+            <Tex display tex="t'_\alpha = R + (1 - R)\cos\alpha" />
             <p>
-              Ramsay's thickness law: <span className="formula">t′α = R + (1 − R) cos α</span>. R = 1 means constant thickness (parallel fold),
-              R = 0 means t′α = cos α (similar fold). Each row gives R_α; fitting all of them gives one R.
+              <Rich text="$R = 1$ means constant thickness (parallel fold), $R = 0$ means $t'_\alpha = \cos\alpha$ (similar fold). Each row gives one $R_\alpha$; fitting all of them gives one $R$." />
             </p>
             <div className="calc">
               <div>
-                from your {used.length} angle{used.length === 1 ? '' : 's'} (least squares through the rows above):{' '}
-                <b className="mono">R = {f(Rmine)}</b>
+                from your {used.length} angle{used.length === 1 ? '' : 's'} (least squares through the rows above): <Tex tex={`R = ${f(Rmine)}`} />
               </div>
               <div>
-                engine, from all {all.length} angles from 20° to 70° every 2.5°: fit <span className="formula">t_α = A + B cos α</span> →{' '}
-                <span className="mono">
-                  A = {f(A, 1)}, B = {f(B, 1)}, t₀ = A + B = {f(t0, 1)} px
-                </span>
+                engine, from all {all.length} angles from 20° to 70° every 2.5°, least-squares fit of <Tex tex="t_\alpha = A + B\cos\alpha" /> gives{' '}
+                <Tex tex={`A = ${f(A, 1)},\\quad B = ${f(B, 1)},\\quad t_0 = A + B = ${f(t0, 1)}\\ \\text{px}`} />
               </div>
               <div className="calc-result">
-                R = A / (A + B) = <b className="mono">{f(L.R)}</b>
-                <span className="mono muted"> ± {f(L.sigma_R)}</span>
+                <Tex tex={`R = \\dfrac{A}{A + B} = \\dfrac{${f(A, 1)}}{${f(A, 1)} + ${f(B, 1)}} = \\mathbf{${f(L.R)}} \\pm ${f(L.sigma_R)}`} />
                 {hand && (
                   <span className="muted">
                     {' '}
-                    · hand ({hand.label}): <b className="mono">{f(hand.R)}</b>
+                    · hand ({hand.label}): <Tex tex={`R = ${f(hand.R)}`} />
                   </span>
                 )}
               </div>
@@ -202,12 +229,24 @@ export function WorkedSheet({ result, angles, hand, title, onClose }: Props) {
                 <table className="sheet-table is-compact">
                   <thead>
                     <tr>
-                      <th>α</th>
-                      <th>cos α</th>
-                      <th>t_α (px)</th>
-                      <th>T_α (px)</th>
-                      <th>t′α</th>
-                      <th>R_α</th>
+                      <th>
+                        <Tex tex="\alpha" />
+                      </th>
+                      <th>
+                        <Tex tex="\cos\alpha" />
+                      </th>
+                      <th>
+                        <Tex tex="t_\alpha" /> (px)
+                      </th>
+                      <th>
+                        <Tex tex="T_\alpha" /> (px)
+                      </th>
+                      <th>
+                        <Tex tex="t'_\alpha" />
+                      </th>
+                      <th>
+                        <Tex tex="R_\alpha" />
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -235,13 +274,14 @@ export function WorkedSheet({ result, angles, hand, title, onClose }: Props) {
               Class from R <Help term="classes" />
             </h3>
             <p>
-              R is compared with the class boundaries. Values within ±{w} of 0 or 1 count as exactly Class 2 or 1B (the band is the larger of 2σ_R and
-              0.05).
+              <Rich text={`$R$ is compared with the class boundaries. Values within $\\pm ${w}$ of 0 or 1 count as exactly Class 2 or 1B (the band is the larger of $2\\sigma_R$ and $0.05$).`} />
             </p>
             <ul className="rules">
               {RULES(w).map((r) => (
                 <li key={r.cls} className={r.cls === rule?.cls ? 'is-hit' : ''}>
-                  <span className="mono rule-test">{r.text}</span>
+                  <span className="rule-test">
+                    <Tex tex={r.tex} />
+                  </span>
                   <span className="rule-arrow">→</span>
                   <b>Class {r.cls}</b>
                   <span className="rule-meaning">{CLASS_MEANING[r.cls]}</span>
@@ -249,7 +289,7 @@ export function WorkedSheet({ result, angles, hand, title, onClose }: Props) {
               ))}
             </ul>
             <div className="calc calc-final">
-              {limb === 'left' ? 'Left' : 'Right'} limb: R = <b className="mono">{f(L.R)}</b> → <b>Class {L.fold_class ?? '?'}</b>
+              {limb === 'left' ? 'Left' : 'Right'} limb: <Tex tex={`R = ${f(L.R)}`} /> → <b>Class {L.fold_class ?? '?'}</b>
               {limbs.length > 1 && (
                 <>
                   <br />
