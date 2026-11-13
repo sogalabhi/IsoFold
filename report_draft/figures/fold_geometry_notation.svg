@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#28333a"/></marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#18825e"/></marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#2878a5"/></marker>
+    <style>
+      text{font-family:Arial,sans-serif;fill:#202a30}.label{font-size:25px}.small{font-size:20px}.title{font-size:31px;font-weight:bold}
+    </style>
+  </defs>
+  <rect width="1400" height="760" fill="#fffdf8"/>
+  <text x="700" y="48" text-anchor="middle" class="title">Fold-profile geometry and dip-isogon notation (schematic)</text>
+  <!-- Folded layer boundaries -->
+  <path d="M105 570 C215 548 300 410 365 255 C425 110 565 95 700 95 C835 95 975 110 1035 255 C1100 410 1185 548 1295 570" fill="none" stroke="#b64c3a" stroke-width="9"/>
+  <path d="M105 650 C230 630 335 490 410 330 C470 205 585 185 700 185 C815 185 930 205 990 330 C1065 490 1170 630 1295 650" fill="none" stroke="#2878a5" stroke-width="9"/>
+  <text x="1150" y="488" class="label" fill="#b64c3a">S₀ — outer boundary</text>
+  <text x="1150" y="540" class="label" fill="#2878a5">S₁ — inner boundary</text>
+  <text x="1170" y="454" class="small">extrados</text>
+  <text x="1170" y="580" class="small">intrados</text>
+  <!-- hinge points / axial trace -->
+  <circle cx="700" cy="95" r="9" fill="#202a30"/><circle cx="700" cy="185" r="9" fill="#202a30"/>
+  <text x="720" y="104" class="label">H</text><text x="720" y="198" class="label">G</text>
+  <line x1="700" y1="95" x2="700" y2="185" stroke="#555" stroke-width="3" stroke-dasharray="9 8"/>
+  <text x="730" y="150" class="small">axial trace segment HG</text>
+  <!-- inflection markers -->
+  <circle cx="350" cy="290" r="8" fill="#9b6b16"/><text x="300" y="278" class="label">I</text>
+  <circle cx="1050" cy="290" r="8" fill="#9b6b16"/><text x="1063" y="285" class="label">I</text>
+  <text x="158" y="334" class="small">limb</text><text x="1110" y="334" class="small">limb</text>
+  <!-- matched tangent contact points on right limb, approximately parallel -->
+  <circle cx="870" cy="108" r="9" fill="#18825e"/><circle cx="900" cy="205" r="9" fill="#18825e"/>
+  <text x="850" y="87" class="label">p</text><text x="908" y="222" class="label">q</text>
+  <line x1="775" y1="140" x2="965" y2="76" stroke="#18825e" stroke-width="4"/>
+  <line x1="805" y1="238" x2="995" y2="174" stroke="#18825e" stroke-width="4"/>
+  <text x="990" y="93" class="small" fill="#18825e">parallel tangents</text>
+  <line x1="870" y1="108" x2="900" y2="205" stroke="#18825e" stroke-width="3" stroke-dasharray="8 7"/>
+  <text x="924" y="147" class="small" fill="#18825e">dip isogon pq</text>
+  <!-- normal direction / t_alpha and axial T_alpha -->
+  <line x1="868" y1="142" x2="900" y2="236" stroke="#18825e" stroke-width="4" marker-start="url(#arrowGreen)" marker-end="url(#arrowGreen)"/>
+  <text x="918" y="272" class="small" fill="#18825e">tα: perpendicular</text>
+  <text x="918" y="297" class="small" fill="#18825e">tangent-to-tangent gap</text>
+  <line x1="1025" y1="110" x2="1025" y2="207" stroke="#2878a5" stroke-width="4" marker-start="url(#arrowBlue)" marker-end="url(#arrowBlue)"/>
+  <text x="1042" y="170" class="small" fill="#2878a5">Tα along</text>
+  <text x="1042" y="195" class="small" fill="#2878a5">axial direction</text>
+  <!-- alpha reference -->
+  <line x1="700" y1="95" x2="820" y2="95" stroke="#555" stroke-width="3"/>
+  <path d="M790 95 A90 90 0 0 1 814 67" fill="none" stroke="#28333a" stroke-width="3"/>
+  <text x="805" y="112" class="label">α</text>
+  <text x="700" y="715" text-anchor="middle" class="small">Dip angle α is measured from the hinge reference tangent on the same limb; the sketch is not to scale.</text>
+</svg>
