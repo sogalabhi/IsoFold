@@ -1,0 +1,168 @@
+import { useState } from 'react'
+import type { Doc, LineKey, Paths } from '../types'
+import { angleColor, inFitRange } from '../geometry'
+import { IconCheck, IconInfo, IconPlus, IconTrash, IconUndo, IconX } from './Icons'
+import { RamsayChart } from './RamsayChart'
+
+interface Props {
+  doc: Doc
+  paths: Paths
+  angles: number[]
+  onAngles: (a: number[]) => void
+}
+
+export function Panel({ doc, paths, angles, onAngles }: Props) {
+  const done: Record<LineKey, boolean> = { outer: paths.outer.length > 1, inner: paths.inner.length > 1 }
+  const active = !done.outer ? 1 : !done.inner ? 2 : 3
+  const hand = doc.example?.hand
+
+  return (
+    <aside className="panel">
+      <section className="panel-section">
+        <ol className="steps">
+          <Step n={1} label="Outer line" color="var(--outer)" done={done.outer} active={active === 1} />
+          <Step n={2} label="Inner line" color="var(--inner)" done={done.inner} active={active === 2} />
+          <Step n={3} label="Angles & result" done={false} active={active === 3} />
+        </ol>
+        <div className="step-actions">
+          <button className="btn btn-quiet" disabled>
+            <IconUndo /> Undo point
+          </button>
+          <button className="btn btn-quiet" disabled>
+            <IconTrash /> Clear
+          </button>
+          <button className="btn btn-accent" disabled>
+            <IconCheck /> Done
+          </button>
+        </div>
+      </section>
+
+      <section className="panel-section">
+        <h2 className="section-title">
+          Dip angles
+          <span className="hint" title="The class always uses the engine's full 20–70° grid. These angles only choose which isogons are drawn and listed.">
+            <IconInfo width={14} height={14} /> display only
+          </span>
+        </h2>
+        <AnglePicker angles={angles} onChange={onAngles} />
+      </section>
+
+      <section className="panel-section">
+        <div className="class-card is-waiting">
+          <div className="class-card-ghost">?</div>
+          <p>Trace both edges of one bed to see its class.</p>
+        </div>
+        {hand && (
+          <div className="hand-card">
+            <div className="hand-card-title">Hand measurement · {hand.label}</div>
+            <div className="hand-card-value">
+              R <b className="mono">{hand.R.toFixed(2)}</b> · Class <b>{hand.fold_class}</b>
+            </div>
+            <div className="hand-card-sub">measured in CorelDraw at {hand.angles.map((a) => Math.round(a) + '°').join(', ')}</div>
+          </div>
+        )}
+      </section>
+
+      <section className="panel-section">
+        <h2 className="section-title">Ramsay diagram</h2>
+        <RamsayChart ghost />
+      </section>
+    </aside>
+  )
+}
+
+function Step({ n, label, color, done, active }: { n: number; label: string; color?: string; done: boolean; active: boolean }) {
+  return (
+    <li className={`step${active ? ' is-active' : ''}${done ? ' is-done' : ''}`}>
+      <span className="step-num">{done ? <IconCheck width={14} height={14} /> : n}</span>
+      <span className="step-label">{label}</span>
+      {color && <span className="step-swatch" style={{ background: color }} />}
+    </li>
+  )
+}
+
+/** "35" | "20, 30, 45" | "20-70/10" -> angles, or null if any part is not 0–89°. */
+function parseAngles(text: string): number[] | null {
+  const out: number[] = []
+  for (const part of text.split(/[,\s]+/).filter(Boolean)) {
+    const range = part.match(/^(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)(?:\/(\d+(?:\.\d+)?))?$/)
+    if (range) {
+      const [a, b, step] = [Number(range[1]), Number(range[2]), Number(range[3] ?? 10)]
+      if (step <= 0 || b < a) return null
+      for (let v = a; v <= b + 1e-9; v += step) out.push(Math.round(v * 100) / 100)
+    } else if (/^\d+(\.\d+)?$/.test(part)) out.push(Number(part))
+    else return null
+  }
+  return out.length && out.every((a) => a >= 0 && a < 90) ? out : null
+}
+
+const PRESETS: { label: string; angles: number[] }[] = [
+  { label: '20 · 40 · 60', angles: [20, 40, 60] },
+  { label: 'Every 10°', angles: [10, 20, 30, 40, 50, 60, 70] },
+  { label: 'Ramsay 20–70', angles: [20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70] },
+]
+
+function AnglePicker({ angles, onChange }: { angles: number[]; onChange: (a: number[]) => void }) {
+  const [adding, setAdding] = useState(false)
+  const [text, setText] = useState('')
+  const [bad, setBad] = useState(false)
+
+  const add = () => {
+    const parsed = parseAngles(text)
+    if (!parsed) {
+      setBad(true)
+      setTimeout(() => setBad(false), 400)
+      return
+    }
+    onChange([...new Set([...angles, ...parsed])].sort((a, b) => a - b))
+    setText('')
+    setAdding(false)
+  }
+
+  return (
+    <div className="angles">
+      <div className="chips">
+        {angles.map((a) => (
+          <span
+            key={a}
+            className={`chip${inFitRange(a) ? '' : ' is-display-only'}`}
+            style={{ ['--chip' as string]: angleColor(a) }}
+            title={inFitRange(a) ? undefined : 'Shown on the photo but not used in the fit (outside 20–70°)'}
+          >
+            <span className="chip-dot" />
+            {a}°
+            <button className="chip-x" aria-label={`Remove ${a}°`} onClick={() => onChange(angles.filter((v) => v !== a))}>
+              <IconX width={12} height={12} />
+            </button>
+          </span>
+        ))}
+        {adding ? (
+          <input
+            autoFocus
+            className={`chip-input${bad ? ' is-bad' : ''}`}
+            placeholder="35 or 20-70/10"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') add()
+              if (e.key === 'Escape') setAdding(false)
+            }}
+            onBlur={() => (text ? add() : setAdding(false))}
+          />
+        ) : (
+          <button className="chip chip-add" onClick={() => setAdding(true)} aria-label="Add angles">
+            <IconPlus width={14} height={14} />
+          </button>
+        )}
+      </div>
+      {bad && <div className="field-error">Angles must be 0–89°, e.g. 35, or 20, 30, 45, or 20-70/10</div>}
+      <div className="presets">
+        {PRESETS.map((p) => (
+          <button key={p.label} className="btn btn-chip" onClick={() => onChange(p.angles)}>
+            {p.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
