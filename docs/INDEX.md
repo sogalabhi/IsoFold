@@ -54,6 +54,12 @@ Objective mathematical proofs, line-by-line code walk, system demonstration work
 - **System Demonstration Workflow**: Step-by-step commands for executing system demonstrations.
 - **Frequently Asked Technical & Methodological Questions (FAQ)**: Pre-formulated technical Q&A.
 
+### [Chapter 7: IsoFold Trace, the manual-tracing web app](07_ISOFOLD_TRACE_WEB_APP.md)
+The web app built for the mid-project review, recorded in build order: why manual tracing, the design decisions, each build step with the problems found and fixed, validation against the hand-measured t′α and R, results on all 12 field examples, limitations, and the report figures (`figures/trace/`).
+
+### [Engine design notes (previous README)](ENGINE_DESIGN_NOTES.md)
+The original project README with the critical design decisions that the `foldclass` code comments refer to as "Readme.md".
+
 ---
 
 ## Quick Reference Cheat Sheet
@@ -105,6 +111,7 @@ major-project/
 │   ├── run.py                # CLI runner with angle/limb/clean options
 │   └── orientation_isogons.py # Structure tensor & Frangi ridge extraction
 ├── traces/                   # Saved trace CSVs and output PNG figures
-├── docs/                     # Full documentation suite (Chapters 1–5)
-└── Readme.md                 # Root README summary
+├── app/                      # IsoFold Trace web app (backend + web), see Chapter 7
+├── docs/                     # Full documentation suite (Chapters 1–7)
+└── README.md                 # IsoFold Trace: what it is, installation, usage
 ```
