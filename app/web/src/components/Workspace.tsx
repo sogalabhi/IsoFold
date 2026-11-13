@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { api } from '../api'
 import type { Anchor, Doc, LineKey, Paths, Pt, Result } from '../types'
 import { Canvas, type Tool } from './Canvas'
 import { IconImage, Logo } from './Icons'
 import { Panel } from './Panel'
+import { Player } from './Player'
+import { buildTimeline, frameAt, isoKey, type Timeline } from '../construction'
 
 interface Props {
   doc: Doc
@@ -72,6 +74,72 @@ export function Workspace({ doc, paths, angles, engine, onPaths, onAngles, onFil
     if (ready) measure()
     else setResult(null)
   }, [ready, paths, angles, measure])
+
+  // ---- "Show construction": replays the hand method from a snapshot of the current result
+  const [show, setShow] = useState<{ result: Result; tl: Timeline } | null>(null)
+  const [t, setT] = useState(0)
+  const [playing, setPlaying] = useState(false)
+  const [speed, setSpeed] = useState(1)
+
+  const startConstruction = () => {
+    if (!result || result.verdict === 'refused' || !result.hinge) return
+    setShow({ result, tl: buildTimeline(result, angles) })
+    setT(0)
+    setPlaying(true)
+  }
+
+  useEffect(() => {
+    if (!show || !playing) return
+    let raf = 0
+    let last = performance.now()
+    const tick = (now: number) => {
+      const dt = now - last
+      last = now
+      setT((prev) => {
+        const n = prev + dt * speed
+        if (n >= show.tl.total) {
+          setPlaying(false)
+          return show.tl.total
+        }
+        return n
+      })
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [show, playing, speed])
+
+  const frame = show ? frameAt(show.tl, t) : null
+  const stepBy = (delta: number) => {
+    if (!show || !frame) return
+    const { starts, total } = show.tl
+    if (delta > 0) setT(frame.i + 1 < starts.length ? starts[frame.i + 1] : total)
+    else setT(starts[frame.u > 0.15 ? frame.i : Math.max(0, frame.i - 1)])
+  }
+
+  // what the panel reveals as the construction goes: chosen points one by one, the fit and class at the end
+  const reveal = useMemo(() => {
+    if (!show || !frame) return null
+    const step = show.tl.steps[frame.i]
+    const cur = step.order ?? (step.kind === 'fit' ? show.tl.isogons.length : -1)
+    const shown = new Set(show.tl.isogons.filter((_, o) => o < cur || (o === cur && step.kind === 'plot')).map(isoKey))
+    return {
+      shown,
+      current: step.kind === 'plot' && step.iso ? isoKey(step.iso) : undefined,
+      showFit: step.kind === 'fit',
+      concealClass: !(step.kind === 'fit' && frame.u > 0.55),
+    }
+  }, [show, frame?.i, frame?.u])
+
+  // frame where the construction happens: the hinge points and the isogons being built
+  const focus = useMemo(() => {
+    if (!show?.result.hinge) return null
+    const all = [show.result.hinge.H, show.result.hinge.G, ...show.tl.isogons.flatMap((i) => [i.p, i.q])]
+    const xs = all.map((p) => p[0])
+    const ys = all.map((p) => p[1])
+    const pad = 0.25 * Math.hypot(...([0, 1].map((j) => show.result.hinge!.H[j] - show.result.hinge!.G[j]) as [number, number]))
+    return [Math.min(...xs) - pad, Math.min(...ys) - pad, Math.max(...xs) + pad, Math.max(...ys) + pad] as [number, number, number, number]
+  }, [show])
 
   const finish = () => {
     if (paths[active].length < 2) return
@@ -155,6 +223,8 @@ export function Workspace({ doc, paths, angles, engine, onPaths, onAngles, onFil
         active={active}
         tool={tool}
         result={result}
+        construction={show && frame ? { result: show.result, tl: show.tl, frame } : null}
+        focus={focus}
         onTool={setTool}
         onPaths={onPaths}
         onFinish={finish}
@@ -162,7 +232,32 @@ export function Workspace({ doc, paths, angles, engine, onPaths, onAngles, onFil
         onCursor={setCursor}
         onZoom={setZoom}
         onPhotoSize={onPhotoSize}
-      />
+      >
+        {show && frame && (
+          <Player
+            tl={show.tl}
+            frame={frame}
+            playing={playing}
+            speed={speed}
+            onPlay={() => {
+              if (t >= show.tl.total) setT(0)
+              setPlaying(true)
+            }}
+            onPause={() => setPlaying(false)}
+            onStep={stepBy}
+            onRestart={() => setT(0)}
+            onEnd={() => {
+              setPlaying(false)
+              setT(show.tl.total)
+            }}
+            onSpeed={() => setSpeed((v) => (v === 1 ? 2 : v === 2 ? 0.5 : 1))}
+            onClose={() => {
+              setShow(null)
+              setPlaying(false)
+            }}
+          />
+        )}
+      </Canvas>
 
       <Panel
         doc={doc}
@@ -178,6 +273,9 @@ export function Workspace({ doc, paths, angles, engine, onPaths, onAngles, onFil
         onUndo={undoPoint}
         onClear={clear}
         onDone={finish}
+        reveal={reveal}
+        constructing={!!show}
+        onConstruction={startConstruction}
       />
 
       <footer className="statusbar">

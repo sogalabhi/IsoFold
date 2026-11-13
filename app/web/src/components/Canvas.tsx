@@ -3,6 +3,8 @@ import type { Anchor, Doc, LineKey, Paths, Pt, Result } from '../types'
 import { pathD } from '../geometry'
 import { IconCheck, IconFit, IconHand, IconMinus, IconPen, IconPlus, IconPointer } from './Icons'
 import { ResultOverlay } from './ResultOverlay'
+import { ConstructionOverlay } from './ConstructionOverlay'
+import type { Frame, Timeline } from '../construction'
 
 export type Tool = 'pen' | 'edit' | 'pan'
 
@@ -28,6 +30,9 @@ interface Props {
   active: LineKey
   tool: Tool
   result: Result | null
+  construction: { result: Result; tl: Timeline; frame: Frame } | null
+  focus: [number, number, number, number] | null
+  children?: React.ReactNode
   onTool: (t: Tool) => void
   onPaths: (key: LineKey, anchors: Anchor[]) => void
   onFinish: () => void
@@ -49,7 +54,7 @@ const add = (a: Pt, b: Pt): Pt => [a[0] + b[0], a[1] + b[1]]
 const len = (a: Pt) => Math.hypot(a[0], a[1])
 
 export function Canvas(props: Props) {
-  const { doc, paths, done, active, tool, result, onTool, onPaths, onFinish, onActive, onCursor, onZoom, onPhotoSize } = props
+  const { doc, paths, done, active, result, construction, focus, children, onTool, onPaths, onFinish, onActive, onCursor, onZoom, onPhotoSize } = props
   const box = useRef<HTMLDivElement>(null)
   const [view, setView] = useState<View | null>(null)
   const [loaded, setLoaded] = useState(false)
@@ -60,6 +65,8 @@ export function Canvas(props: Props) {
   const [cursor, setCursorPt] = useState<Pt | null>(null)
   const fitted = useRef(true) // still showing the "fit" view: keep fitting when the window resizes
 
+  // while the construction plays the canvas only pans
+  const tool: Tool = construction ? 'pan' : props.tool
   const drawing: LineKey | null = done[active] ? null : active // the line the pen adds to
 
   // ---------------------------------------------------------------- view: fit, zoom, pan
@@ -100,6 +107,23 @@ export function Canvas(props: Props) {
   useEffect(() => {
     if (view) onZoom(view.s)
   }, [view, onZoom])
+
+  // zoom to a box (image px) with some margin, e.g. the fold while the construction plays
+  useEffect(() => {
+    const el = box.current
+    if (!focus || !el) return
+    const [x0, y0, x1, y1] = focus
+    const mx = (x1 - x0) * 0.25
+    const my = (y1 - y0) * 0.25
+    const bw = x1 - x0 + 2 * mx
+    const bh = y1 - y0 + 2 * my
+    const { width: cw, height: ch } = el.getBoundingClientRect()
+    const availH = ch - 2 * FIT_PAD - 150 // keep clear of the player at the bottom
+    const s = Math.min(MAX_ZOOM, (cw - FIT_LEFT - FIT_PAD) / bw, availH / bh)
+    fitted.current = false
+    setAnimate(true)
+    setView({ s, x: FIT_LEFT + (cw - FIT_LEFT - FIT_PAD - bw * s) / 2 - (x0 - mx) * s, y: FIT_PAD + (availH - bh * s) / 2 - (y0 - my) * s })
+  }, [focus])
 
   const zoomAt = useCallback(
     (factor: number, mx: number, my: number, smooth: boolean) => {
@@ -277,7 +301,7 @@ export function Canvas(props: Props) {
 
   // ---------------------------------------------------------------- render
 
-  const showResult = !!result && result.verdict !== 'refused' && !drawing
+  const showResult = !!result && result.verdict !== 'refused' && !drawing && !construction
   const pulling = drag?.mode === 'pull'
   const last = drawing ? paths[drawing][paths[drawing].length - 1] : undefined
   const overLast = !!(drawing && hover?.part === 'p' && hover.key === drawing && hover.idx === paths[drawing].length - 1 && paths[drawing].length >= 2)
@@ -342,14 +366,16 @@ export function Canvas(props: Props) {
             {KEYS.map(
               (key) =>
                 paths[key].length > 1 && (
-                  <g key={key} className={showResult && result?.cut ? 'is-faded' : ''}>
+                  <g key={key} className={(showResult && result?.cut) || construction ? 'is-faded' : ''}>
                     <path d={pathD(paths[key])} className="trace-halo" strokeWidth={6 * k} />
                     <path d={pathD(paths[key])} className={`trace trace-${key}`} strokeWidth={2.5 * k} />
                   </g>
                 ),
             )}
 
+            {construction && <rect x={0} y={0} width={doc.width} height={doc.height} className="photo-dim" />}
             {showResult && <ResultOverlay result={result!} k={k} />}
+            {construction && <ConstructionOverlay result={construction.result} tl={construction.tl} frame={construction.frame} k={k} />}
 
             {preview && drawing && (
               <path
@@ -406,6 +432,8 @@ export function Canvas(props: Props) {
           <IconCheck width={14} height={14} /> Done
         </button>
       )}
+
+      {children}
 
       {!loaded && (
         <div className="canvas-loading">

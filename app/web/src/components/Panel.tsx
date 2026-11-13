@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Doc, LineKey, Paths, Result } from '../types'
 import { angleColor, inFitRange } from '../geometry'
-import { IconCheck, IconInfo, IconPlus, IconTrash, IconUndo, IconX } from './Icons'
+import { IconCheck, IconInfo, IconPlay, IconPlus, IconTrash, IconUndo, IconX } from './Icons'
 import { RamsayChart } from './RamsayChart'
 import { ClassCard } from './ClassCard'
 import { RScale } from './RScale'
@@ -21,13 +21,21 @@ interface Props {
   onUndo: () => void
   onClear: () => void
   onDone: () => void
+  reveal: { shown: Set<string>; current?: string; showFit: boolean; concealClass: boolean } | null
+  constructing: boolean
+  onConstruction: () => void
 }
 
-export function Panel({ doc, paths, done, active, angles, result, updating, offline, onAngles, onStep, onUndo, onClear, onDone }: Props) {
+export function Panel({ doc, paths, done, active, angles, result, updating, offline, onAngles, onStep, onUndo, onClear, onDone, reveal, constructing, onConstruction }: Props) {
   const both = done.outer && done.inner
   const line = paths[active]
   const hand = doc.example?.hand
   const live = both && result && result.verdict !== 'refused' ? result : null
+  // bring the chart into view when the construction starts, so it can be watched filling in
+  const chartRef = useRef<HTMLElement>(null)
+  useEffect(() => {
+    if (constructing) chartRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [constructing])
 
   return (
     <aside className="panel">
@@ -64,7 +72,12 @@ export function Panel({ doc, paths, done, active, angles, result, updating, offl
       </section>
 
       <section className="panel-section">
-        <ClassCard result={result} ready={both} updating={updating} offline={offline} hand={hand} />
+        <ClassCard result={result} ready={both} updating={updating} offline={offline} hand={hand} concealed={!!reveal?.concealClass} />
+        {live && live.hinge && (
+          <button className="btn btn-primary btn-construction" onClick={onConstruction} disabled={constructing}>
+            <IconPlay width={15} height={15} /> {constructing ? 'Construction playing…' : 'Show construction'}
+          </button>
+        )}
         {hand && !(both && result && result.verdict !== 'refused') && (
           <div className="hand-card">
             <div className="hand-card-title">Hand measurement · {hand.label}</div>
@@ -76,16 +89,16 @@ export function Panel({ doc, paths, done, active, angles, result, updating, offl
         )}
       </section>
 
-      {live && (
+      {live && !reveal?.concealClass && (
         <section className="panel-section">
           <h2 className="section-title">Where R sits</h2>
           <RScale result={live} />
         </section>
       )}
 
-      <section className="panel-section">
+      <section className="panel-section" ref={chartRef}>
         <h2 className="section-title">Ramsay diagram</h2>
-        <RamsayChart result={live} hand={hand} />
+        <RamsayChart result={live} hand={hand} reveal={reveal} />
       </section>
 
       {live && (

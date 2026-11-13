@@ -24,9 +24,11 @@ const LIMBS: Limb[] = ['left', 'right']
 interface Props {
   result?: Result | null
   hand?: HandMeasurement | null
+  /** during the construction: only these chosen points so far, the current one pulsing; fit + grid at the end */
+  reveal?: { shown: Set<string>; current?: string; showFit: boolean } | null
 }
 
-export function RamsayChart({ result, hand }: Props) {
+export function RamsayChart({ result, hand, reveal }: Props) {
   const cos = curve((a) => Math.cos(a * RAD))
   const top = y(Y_MAX)
   const one = y(1)
@@ -37,7 +39,7 @@ export function RamsayChart({ result, hand }: Props) {
 
   return (
     <div className="ramsay-wrap">
-      <svg className={`ramsay${live ? '' : ' is-ghost'}`} viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Ramsay t′α against α diagram">
+      <svg className={`ramsay${live ? '' : ' is-ghost'}${reveal?.showFit ? ' is-fitting' : ''}`} viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Ramsay t′α against α diagram">
         <path d={field1A} className="field field-1a" />
         <path d={field1C} className="field field-1c" />
         <path d={field3} className="field field-3" />
@@ -73,17 +75,17 @@ export function RamsayChart({ result, hand }: Props) {
         {live && (
           <g>
             {/* chosen angles: guide lines in the chip colour */}
-            {[...new Set(live.isogons.map((i) => i.alpha))].map((a) => (
+            {[...new Set(live.isogons.filter((i) => !reveal || reveal.shown.has(`${i.limb}-${i.alpha}`)).map((i) => i.alpha))].map((a) => (
               <line key={a} x1={x(a)} x2={x(a)} y1={top} y2={y(0)} stroke={angleColor(a)} className="guide" />
             ))}
             {/* fitted curve t' = R + (1 - R) cos α per limb */}
-            {LIMBS.map((l) => {
+            {(!reveal || reveal.showFit) && LIMBS.map((l) => {
               const c = live.chart[l]
               if (!c) return null
               return <polyline key={l} points={curve((a) => c.fit.R + (1 - c.fit.R) * Math.cos(a * RAD)).join(' ')} className={`fit fit-${l}`} />
             })}
             {/* the engine's 2.5° grid points used for the fit */}
-            {LIMBS.map((l) =>
+            {(!reveal || reveal.showFit) && LIMBS.map((l) =>
               live.chart[l]?.points.map(([a, t]) =>
                 l === 'left' ? (
                   <circle key={`${l}${a}`} cx={x(a)} cy={y(t)} r={2.6} className="pt pt-left">
@@ -99,8 +101,16 @@ export function RamsayChart({ result, hand }: Props) {
             {/* chosen angles: the measured isogons, enlarged in their colour */}
             {live.isogons.map(
               (i) =>
-                i.t_prime != null && (
-                  <circle key={`${i.limb}-${i.alpha}`} cx={x(i.alpha)} cy={y(i.t_prime)} r={4.2} fill={angleColor(i.alpha)} className="pt-chosen">
+                i.t_prime != null &&
+                (!reveal || reveal.shown.has(`${i.limb}-${i.alpha}`)) && (
+                  <circle
+                    key={`${i.limb}-${i.alpha}`}
+                    cx={x(i.alpha)}
+                    cy={y(i.t_prime)}
+                    r={4.2}
+                    fill={angleColor(i.alpha)}
+                    className={`pt-chosen${reveal?.current === `${i.limb}-${i.alpha}` ? ' is-current' : ''}`}
+                  >
                     <title>{`${i.limb} limb · α ${i.alpha}° · t_α ${i.t_px.toFixed(0)} px · t′ ${i.t_prime.toFixed(3)}`}</title>
                   </circle>
                 ),

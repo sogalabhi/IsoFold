@@ -22,9 +22,10 @@ interface Props {
   updating: boolean
   offline: boolean
   hand: HandMeasurement | null | undefined
+  concealed?: boolean // during the construction: the class is revealed at the end
 }
 
-export function ClassCard({ result, ready, updating, offline, hand }: Props) {
+export function ClassCard({ result, ready, updating, offline, hand, concealed }: Props) {
   if (offline)
     return (
       <div className="class-card is-offline">
@@ -40,6 +41,14 @@ export function ClassCard({ result, ready, updating, offline, hand }: Props) {
       </div>
     )
 
+  if (concealed)
+    return (
+      <div className="class-card is-waiting is-concealed">
+        <div className="class-card-ghost">?</div>
+        <p>Watch the construction: the class is revealed once the points are fitted.</p>
+      </div>
+    )
+
   const v = VERDICT[result.verdict]
   const o = result.overall
   const limbs = (['left', 'right'] as const).filter((l) => result.limbs[l])
@@ -49,7 +58,7 @@ export function ClassCard({ result, ready, updating, offline, hand }: Props) {
   const agrees = hand && o?.fold_class ? hand.fold_class === o.fold_class : null
 
   return (
-    <div className={`class-card is-${result.verdict}${updating ? ' is-updating' : ''}`}>
+    <div className={`class-card is-${result.verdict}${updating ? ' is-updating' : ''}${concealed === false ? ' is-revealed' : ''}`}>
       <div className="class-card-head">
         <div className="class-big">{big}</div>
         <div className="class-head-text">
