@@ -1,5 +1,6 @@
-import { useRef, useState } from 'react'
-import type { Anchor, Doc, LineKey, Paths, Pt } from '../types'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { api } from '../api'
+import type { Anchor, Doc, LineKey, Paths, Pt, Result } from '../types'
 import { Canvas, type Tool } from './Canvas'
 import { IconImage, Logo } from './Icons'
 import { Panel } from './Panel'
@@ -25,6 +26,52 @@ export function Workspace({ doc, paths, angles, engine, onPaths, onAngles, onFil
   const [cursor, setCursor] = useState<Pt | null>(null)
   const [zoom, setZoom] = useState(1)
   const input = useRef<HTMLInputElement>(null)
+
+  // ---- live classification: once both lines are finished, every edit / angle change is measured.
+  // While a request is out, newer edits wait and only the latest shape is sent next, so dragging
+  // updates as fast as the engine answers without queueing stale requests.
+  const [result, setResult] = useState<Result | null>(null)
+  const [updating, setUpdating] = useState(false)
+  const [offline, setOffline] = useState(false)
+  const ready = done.outer && done.inner && paths.outer.length > 1 && paths.inner.length > 1
+  const latest = useRef({ paths, angles, ready })
+  latest.current = { paths, angles, ready }
+  const inflight = useRef(false)
+  const pending = useRef(false)
+
+  const measure = useCallback(() => {
+    if (inflight.current) {
+      pending.current = true
+      return
+    }
+    inflight.current = true
+    setUpdating(true)
+    const { paths: p, angles: a } = latest.current
+    api
+      .classify(p, a)
+      .then(
+        (r) => {
+          if (latest.current.ready) setResult(r)
+          setOffline(false)
+        },
+        () => setOffline(true),
+      )
+      .finally(() => {
+        inflight.current = false
+        if (pending.current && latest.current.ready) {
+          pending.current = false
+          measure()
+        } else {
+          pending.current = false
+          setUpdating(false)
+        }
+      })
+  }, [])
+
+  useEffect(() => {
+    if (ready) measure()
+    else setResult(null)
+  }, [ready, paths, angles, measure])
 
   const finish = () => {
     if (paths[active].length < 2) return
@@ -107,6 +154,7 @@ export function Workspace({ doc, paths, angles, engine, onPaths, onAngles, onFil
         done={done}
         active={active}
         tool={tool}
+        result={result}
         onTool={setTool}
         onPaths={onPaths}
         onFinish={finish}
@@ -122,6 +170,9 @@ export function Workspace({ doc, paths, angles, engine, onPaths, onAngles, onFil
         done={done}
         active={active}
         angles={angles}
+        result={result}
+        updating={updating}
+        offline={offline}
         onAngles={onAngles}
         onStep={pickStep}
         onUndo={undoPoint}

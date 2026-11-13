@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import type { Doc, LineKey, Paths } from '../types'
+import type { Doc, LineKey, Paths, Result } from '../types'
 import { angleColor, inFitRange } from '../geometry'
 import { IconCheck, IconInfo, IconPlus, IconTrash, IconUndo, IconX } from './Icons'
 import { RamsayChart } from './RamsayChart'
+import { ClassCard } from './ClassCard'
 
 interface Props {
   doc: Doc
@@ -10,6 +11,9 @@ interface Props {
   done: Record<LineKey, boolean>
   active: LineKey
   angles: number[]
+  result: Result | null
+  updating: boolean
+  offline: boolean
   onAngles: (a: number[]) => void
   onStep: (key: LineKey) => void
   onUndo: () => void
@@ -17,7 +21,7 @@ interface Props {
   onDone: () => void
 }
 
-export function Panel({ doc, paths, done, active, angles, onAngles, onStep, onUndo, onClear, onDone }: Props) {
+export function Panel({ doc, paths, done, active, angles, result, updating, offline, onAngles, onStep, onUndo, onClear, onDone }: Props) {
   const both = done.outer && done.inner
   const line = paths[active]
   const hand = doc.example?.hand
@@ -57,11 +61,8 @@ export function Panel({ doc, paths, done, active, angles, onAngles, onStep, onUn
       </section>
 
       <section className="panel-section">
-        <div className="class-card is-waiting">
-          <div className="class-card-ghost">?</div>
-          <p>Trace both edges of one bed to see its class.</p>
-        </div>
-        {hand && (
+        <ClassCard result={result} ready={both} updating={updating} offline={offline} hand={hand} />
+        {hand && !(both && result && result.verdict !== 'refused') && (
           <div className="hand-card">
             <div className="hand-card-title">Hand measurement · {hand.label}</div>
             <div className="hand-card-value">

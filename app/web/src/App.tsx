@@ -45,7 +45,10 @@ export default function App() {
       }
       const url = URL.createObjectURL(file)
       const im = new Image()
-      im.onload = () => showDoc({ name: file.name, url, width: im.naturalWidth, height: im.naturalHeight, example: null }, EMPTY)
+      im.onload = () => {
+        showDoc({ name: file.name, url, width: im.naturalWidth, height: im.naturalHeight, example: null }, EMPTY)
+        setAngles([20, 40, 60])
+      }
       im.onerror = () => {
         URL.revokeObjectURL(url)
         setError(`Couldn't open ${file.name}. Try a JPG or PNG.`)

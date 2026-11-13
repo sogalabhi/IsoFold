@@ -50,3 +50,49 @@ export interface Health {
   engine: string
   examples: boolean
 }
+
+// ---- result of POST /api/classify (app/backend/manual.py classify) ----
+
+export type Limb = 'left' | 'right'
+
+export interface Isogon {
+  limb: Limb
+  alpha: number
+  p: Pt // on the outer line
+  q: Pt // on the inner line
+  foot: Pt // q dropped onto the outer tangent at p: t_alpha = |q - foot|
+  tan_p: Pt
+  tan_q: Pt
+  t_px: number
+  t_prime: number | null
+  in_fit_range: boolean
+}
+
+export interface LimbResult {
+  fitted: boolean
+  fold_class: string | null
+  R: number | null
+  sigma_R: number | null
+  t0_px: number | null
+  alpha_span_deg: number | null
+  n_isogons: number
+  max_dip_deg: number | null
+  warnings: string[]
+}
+
+export interface Result {
+  verdict: 'confident' | 'low_confidence' | 'refused'
+  reasons: string[]
+  notes: string[]
+  engine_error: string | null
+  swapped: boolean
+  overall: { fold_class: string | null; R: number | null; sigma_R: number | null } | null
+  limbs: Partial<Record<Limb, LimbResult>>
+  hinge: { H: Pt; G: Pt; hg_px: number; tan_H: Pt; tan_G: Pt; axial_trace: { point: Pt; dir: Pt } } | null
+  cut: { outer: Pt[]; inner: Pt[] } | null
+  isogons: Isogon[]
+  missing: { limb: Limb; alpha: number; why: string }[]
+  chart: Partial<Record<Limb, { points: [number, number][]; fit: { R: number; t0_px: number } }>>
+  engine: string
+  timings_ms: Record<string, number>
+}

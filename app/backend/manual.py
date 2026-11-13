@@ -174,8 +174,8 @@ def classify(outer, inner, angles=(20, 40, 60)):
         for a in angles:
             p = got.get(a)
             if p is None:
-                why = (f'beyond {MAX_MATCH_DEG:.0f} deg, where tangent matching is unreliable' if a > MAX_MATCH_DEG else
-                       f'this limb only turns {turn:.0f} deg' if a > turn else
+                why = (f'beyond {MAX_MATCH_DEG:.0f}°, where tangent matching is unreliable' if a > MAX_MATCH_DEG else
+                       f'this limb only turns {turn:.0f}°' if a > turn else
                        'no plausible match (isogon far longer than the bed is thick)')
                 missing.append(dict(limb=name, alpha=a, why=why))
                 continue
@@ -214,8 +214,8 @@ def classify(outer, inner, angles=(20, 40, 60)):
     if dip > VALIDATED_DIP_DEG:
         # not a confidence issue: the fit only uses 20-70 deg, and on hand traces dipping 86-88 deg the engine
         # matched the hand-measured R (Fold 11, Fold 3)
-        notes.append(f'The limbs dip up to {dip:.0f} deg. The fit uses only {FIT_RANGE[0]:.0f}-{FIT_RANGE[1]:.0f} deg; '
-                     f'synthetic tests covered dips up to {VALIDATED_DIP_DEG:.0f} deg.')
+        notes.append(f'The limbs dip up to {dip:.0f}°. The fit uses only {FIT_RANGE[0]:.0f}–{FIT_RANGE[1]:.0f}°; '
+                     f'synthetic tests covered dips up to {VALIDATED_DIP_DEG:.0f}°.')
     for n, l in fitted.items():
         reasons += [f'{n} limb: {w}' for w in l['warnings']]
     reasons += list(r['warnings'])

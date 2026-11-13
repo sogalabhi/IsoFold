@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import type { Anchor, Doc, LineKey, Paths, Pt } from '../types'
+import type { Anchor, Doc, LineKey, Paths, Pt, Result } from '../types'
 import { pathD } from '../geometry'
 import { IconCheck, IconFit, IconHand, IconMinus, IconPen, IconPlus, IconPointer } from './Icons'
+import { ResultOverlay } from './ResultOverlay'
 
 export type Tool = 'pen' | 'edit' | 'pan'
 
@@ -26,6 +27,7 @@ interface Props {
   done: Record<LineKey, boolean>
   active: LineKey
   tool: Tool
+  result: Result | null
   onTool: (t: Tool) => void
   onPaths: (key: LineKey, anchors: Anchor[]) => void
   onFinish: () => void
@@ -47,7 +49,7 @@ const add = (a: Pt, b: Pt): Pt => [a[0] + b[0], a[1] + b[1]]
 const len = (a: Pt) => Math.hypot(a[0], a[1])
 
 export function Canvas(props: Props) {
-  const { doc, paths, done, active, tool, onTool, onPaths, onFinish, onActive, onCursor, onZoom, onPhotoSize } = props
+  const { doc, paths, done, active, tool, result, onTool, onPaths, onFinish, onActive, onCursor, onZoom, onPhotoSize } = props
   const box = useRef<HTMLDivElement>(null)
   const [view, setView] = useState<View | null>(null)
   const [loaded, setLoaded] = useState(false)
@@ -275,6 +277,7 @@ export function Canvas(props: Props) {
 
   // ---------------------------------------------------------------- render
 
+  const showResult = !!result && result.verdict !== 'refused' && !drawing
   const pulling = drag?.mode === 'pull'
   const last = drawing ? paths[drawing][paths[drawing].length - 1] : undefined
   const overLast = !!(drawing && hover?.part === 'p' && hover.key === drawing && hover.idx === paths[drawing].length - 1 && paths[drawing].length >= 2)
@@ -339,12 +342,14 @@ export function Canvas(props: Props) {
             {KEYS.map(
               (key) =>
                 paths[key].length > 1 && (
-                  <g key={key} className={key === active || tool !== 'edit' ? '' : 'is-dim'}>
+                  <g key={key} className={showResult && result?.cut ? 'is-faded' : ''}>
                     <path d={pathD(paths[key])} className="trace-halo" strokeWidth={6 * k} />
                     <path d={pathD(paths[key])} className={`trace trace-${key}`} strokeWidth={2.5 * k} />
                   </g>
                 ),
             )}
+
+            {showResult && <ResultOverlay result={result!} k={k} />}
 
             {preview && drawing && (
               <path

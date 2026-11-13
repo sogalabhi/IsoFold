@@ -549,8 +549,40 @@ code {
 .trace-preview {
   opacity: 0.85;
 }
-.overlay .is-dim {
-  opacity: 0.45;
+.overlay .is-faded {
+  opacity: 0.4;
+}
+
+/* engine result on the photo */
+.iso-halo,
+.axial-halo {
+  stroke: var(--halo);
+  stroke-linecap: round;
+}
+.axial-line {
+  stroke: var(--ink);
+}
+.iso-pill {
+  fill: var(--paper-2);
+}
+.iso-label {
+  font-family: var(--mono);
+  font-weight: 600;
+  fill: var(--ink);
+}
+.is-display-only .iso-pill {
+  stroke-dasharray: 3 2;
+}
+.hinge-pt {
+  fill: var(--ink);
+  stroke: #fff;
+}
+.hinge-label {
+  font-family: var(--mono);
+  font-weight: 600;
+  fill: var(--ink);
+  stroke: var(--halo);
+  paint-order: stroke;
 }
 
 .anchor {
@@ -942,6 +974,140 @@ code {
   color: var(--ink-3);
   font: 600 28px var(--mono);
 }
+.class-card.is-offline {
+  border-color: #e2b3aa;
+  background: #f8e6e2;
+  color: #7d261c;
+  font-size: 13.5px;
+}
+.class-card.is-confident {
+  border-left: 4px solid var(--ok);
+}
+.class-card.is-low_confidence {
+  border-left: 4px solid var(--warn);
+}
+.class-card.is-refused {
+  border-left: 4px solid var(--bad);
+}
+.class-card.is-updating .class-big,
+.class-card.is-updating .class-r {
+  opacity: 0.7;
+}
+.class-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.class-big {
+  flex: none;
+  min-width: 64px;
+  font: 600 46px/1 var(--mono);
+  letter-spacing: -0.03em;
+  transition: opacity 0.15s;
+}
+.class-head-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: 2px;
+  min-width: 0;
+}
+.verdict {
+  font-weight: 600;
+  font-size: 13.5px;
+}
+.is-confident .verdict {
+  color: var(--ok);
+}
+.is-low_confidence .verdict {
+  color: var(--warn);
+}
+.is-refused .verdict {
+  color: var(--bad);
+}
+.class-meaning {
+  font-size: 13px;
+  color: var(--ink-2);
+  line-height: 1.35;
+}
+.spinner-sm {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+  margin-left: auto;
+  flex: none;
+}
+.class-r {
+  margin-top: 14px;
+  font-size: 17px;
+  transition: opacity 0.15s;
+}
+.class-sigma {
+  color: var(--ink-3);
+  font-size: 14px;
+}
+.class-limbs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+.class-limb {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 9px;
+  border-radius: 5px;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  font-size: 13px;
+}
+.class-limb-name {
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+.class-reasons,
+.class-notes {
+  margin: 12px 0 0;
+  padding: 0 0 0 18px;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.class-reasons {
+  color: #7a5212;
+}
+.class-reasons.is-refused {
+  color: #7d261c;
+  font-size: 13.5px;
+}
+.class-reasons li + li,
+.class-notes li + li {
+  margin-top: 4px;
+}
+.class-notes {
+  color: var(--ink-3);
+}
+.class-hand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--rule-strong);
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.agree {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.agree.is-yes {
+  color: var(--ok);
+}
+.agree.is-no {
+  color: var(--bad);
+}
+
 .hand-card {
   margin-top: 10px;
   padding: 10px 14px;
