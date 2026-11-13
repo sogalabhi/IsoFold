@@ -100,6 +100,24 @@ export function Workspace({ doc, paths, angles, engine, onPaths, onAngles, onFil
     setPlaying(true)
   }
 
+  const stopConstruction = () => {
+    setShow(null)
+    setPlaying(false)
+  }
+
+  // Esc closes whatever is open over the photo: the construction, the worked sheet or the 3D view
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      setShow(null)
+      setPlaying(false)
+      setWorking(false)
+      setView3d(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
   useEffect(() => {
     if (!show || !playing) return
     let raf = 0
@@ -263,10 +281,7 @@ export function Workspace({ doc, paths, angles, engine, onPaths, onAngles, onFil
               setT(show.tl.total)
             }}
             onSpeed={() => setSpeed((v) => (v === 1 ? 2 : v === 2 ? 0.5 : 1))}
-            onClose={() => {
-              setShow(null)
-              setPlaying(false)
-            }}
+            onClose={stopConstruction}
           />
         )}
       </Canvas>
@@ -288,6 +303,7 @@ export function Workspace({ doc, paths, angles, engine, onPaths, onAngles, onFil
         reveal={reveal}
         constructing={!!show}
         onConstruction={startConstruction}
+        onStopConstruction={stopConstruction}
         onWorking={() => {
           setView3d(false)
           setWorking(true)

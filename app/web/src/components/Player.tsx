@@ -46,6 +46,9 @@ export function Player({ tl, frame, playing, speed, onPlay, onPause, onStep, onR
           {frame.i + 1}/{tl.steps.length}
         </span>
         <span className="player-text">{step.caption}</span>
+        <button className="player-x" onClick={onClose} title="Close construction (Esc)" aria-label="Close construction">
+          <IconX width={18} height={18} />
+        </button>
       </div>
       <div className="player-bar">
         <div className="player-progress">

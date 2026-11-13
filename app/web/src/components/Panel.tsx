@@ -25,11 +25,12 @@ interface Props {
   reveal: { shown: Set<string>; current?: string; showFit: boolean; concealClass: boolean } | null
   constructing: boolean
   onConstruction: () => void
+  onStopConstruction: () => void
   onWorking: () => void
   on3D: () => void
 }
 
-export function Panel({ doc, paths, done, active, angles, result, updating, offline, onAngles, onStep, onUndo, onClear, onDone, reveal, constructing, onConstruction, onWorking, on3D }: Props) {
+export function Panel({ doc, paths, done, active, angles, result, updating, offline, onAngles, onStep, onUndo, onClear, onDone, reveal, constructing, onConstruction, onStopConstruction, onWorking, on3D }: Props) {
   const both = done.outer && done.inner
   const line = paths[active]
   const hand = doc.example?.hand
@@ -78,11 +79,17 @@ export function Panel({ doc, paths, done, active, angles, result, updating, offl
 
       <section className="panel-section">
         <ClassCard result={result} ready={both} updating={updating} offline={offline} hand={hand} concealed={!!reveal?.concealClass} />
-        {live && live.hinge && (
-          <button className="btn btn-primary btn-construction" onClick={onConstruction} disabled={constructing}>
-            <IconPlay width={15} height={15} /> {constructing ? 'Construction playing…' : 'Show construction'}
-          </button>
-        )}
+        {live &&
+          live.hinge &&
+          (constructing ? (
+            <button className="btn btn-construction btn-stop" onClick={onStopConstruction}>
+              <span className="stop-square" /> Stop construction
+            </button>
+          ) : (
+            <button className="btn btn-primary btn-construction" onClick={onConstruction}>
+              <IconPlay width={15} height={15} /> Show construction
+            </button>
+          ))}
         {live && !constructing && (
           <div className="extra-actions">
             <button className="btn btn-working" onClick={onWorking}>

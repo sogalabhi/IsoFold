@@ -30,6 +30,10 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 html,
 body,
 #root {
@@ -1547,6 +1551,7 @@ code {
 }
 
 .player {
+  z-index: 15;
   position: absolute;
   left: 50%;
   bottom: 16px;
@@ -2108,4 +2113,40 @@ code {
   width: 14px;
   height: 10px;
   border-radius: 2px;
+}
+
+.player-x {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin: -4px -6px 0 auto;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.player-x:hover {
+  background: var(--paper-3);
+  color: var(--ink);
+}
+.btn-stop {
+  width: 100%;
+  justify-content: center;
+  margin-top: 10px;
+  height: 38px;
+  border-color: var(--bad);
+  color: var(--bad);
+  font-weight: 600;
+}
+.btn-stop:hover {
+  background: #f8e6e2 !important;
+}
+.stop-square {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: currentColor;
 }

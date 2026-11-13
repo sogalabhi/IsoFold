@@ -455,7 +455,7 @@ export function Canvas(props: Props) {
         </ToolButton>
       </div>
 
-      <div className="zoom-bar" onPointerDown={(e) => e.stopPropagation()}>
+      <div className="zoom-bar" hidden={!!construction} onPointerDown={(e) => e.stopPropagation()}>
         <button className="icon-btn" title="Zoom out" onClick={() => zoomCenter(1 / 1.4)}>
           <IconMinus />
         </button>
