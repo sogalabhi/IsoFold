@@ -63,6 +63,7 @@ export function Canvas(props: Props) {
   const [hover, setHover] = useState<Hit | null>(null)
   const [selected, setSelected] = useState<{ key: LineKey; idx: number } | null>(null)
   const [cursor, setCursorPt] = useState<Pt | null>(null)
+  const [labels, setLabels] = useState(true)
   const fitted = useRef(true) // still showing the "fit" view: keep fitting when the window resizes
 
   // while the construction plays the canvas only pans
@@ -374,7 +375,7 @@ export function Canvas(props: Props) {
             )}
 
             {construction && <rect x={0} y={0} width={doc.width} height={doc.height} className="photo-dim" />}
-            {showResult && <ResultOverlay result={result!} k={k} />}
+            {showResult && <ResultOverlay result={result!} k={k} labels={labels} />}
             {construction && <ConstructionOverlay result={construction.result} tl={construction.tl} frame={construction.frame} k={k} />}
 
             {preview && drawing && (
@@ -463,6 +464,10 @@ export function Canvas(props: Props) {
         </button>
         <button className="icon-btn" title="Zoom in" onClick={() => zoomCenter(1.4)}>
           <IconPlus />
+        </button>
+        <span className="zoom-sep" />
+        <button className={`zoom-labels${labels ? ' is-on' : ''}`} title="Show or hide point labels" onClick={() => setLabels((v) => !v)} aria-pressed={labels}>
+          Labels {labels ? 'on' : 'off'}
         </button>
         <span className="zoom-sep" />
         <button className="icon-btn" title="Fit photo to screen" onClick={() => fit(true)}>

@@ -573,6 +573,45 @@ code {
 .is-display-only .iso-pill {
   stroke-dasharray: 3 2;
 }
+.pill rect {
+  fill: var(--paper-2);
+}
+.pill text {
+  font-family: var(--mono);
+  font-weight: 600;
+  fill: var(--ink);
+}
+.pill.is-strong rect {
+  fill: var(--ink);
+}
+.pill.is-strong text {
+  fill: var(--paper-2);
+}
+.iso-end {
+  fill: #fff;
+}
+.infl-pt {
+  fill: #fff;
+  stroke: var(--ink);
+}
+.zoom-labels {
+  height: 32px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  font: 500 12.5px var(--font);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.zoom-labels:hover {
+  background: var(--paper-3);
+  color: var(--ink);
+}
+.zoom-labels.is-on {
+  color: var(--ink);
+  font-weight: 600;
+}
 .hinge-pt {
   fill: var(--ink);
   stroke: #fff;
