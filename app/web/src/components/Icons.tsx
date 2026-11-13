@@ -108,11 +108,11 @@ export const IconX = (p: SVGProps<SVGSVGElement>) => (
   </svg>
 )
 
-/** The app mark: an outer (amber) and inner (cyan) bed boundary of a fold. */
+/** The app mark: the outer (red) and inner (blue) boundary of a folded bed. */
 export const Logo = ({ size = 26 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden>
-    <rect width="32" height="32" rx="7" fill="#23272E" />
-    <path d="M5 9c0 12 6 18 11 18s11-6 11-18" fill="none" stroke="#FFB020" strokeWidth="3" strokeLinecap="round" />
-    <path d="M11 7c0 9 2.5 13 5 13s5-4 5-13" fill="none" stroke="#2EE6F0" strokeWidth="3" strokeLinecap="round" />
+    <rect x="0.75" y="0.75" width="30.5" height="30.5" rx="5" fill="#FBFAF6" stroke="#1F1C17" strokeWidth="1.5" />
+    <path d="M5 9c0 12 6 18 11 18s11-6 11-18" fill="none" stroke="#D9412A" strokeWidth="3" strokeLinecap="round" />
+    <path d="M11 7c0 9 2.5 13 5 13s5-4 5-13" fill="none" stroke="#1E66C4" strokeWidth="3" strokeLinecap="round" />
   </svg>
 )

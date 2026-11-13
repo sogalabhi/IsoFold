@@ -15,7 +15,7 @@ export function Welcome({ health, examples, loadingExample, onFile, onExample }:
   const [over, setOver] = useState(false)
 
   return (
-    <div className="welcome">
+    <div className="welcome graph-paper">
       <header className="welcome-top">
         <div className="brand">
           <Logo size={30} />
@@ -24,6 +24,7 @@ export function Welcome({ health, examples, loadingExample, onFile, onExample }:
       </header>
 
       <main className="welcome-main">
+        <div className="welcome-kicker">Ramsay dip-isogon method</div>
         <h1 className="welcome-title">Classify a fold from a photo</h1>
         <p className="welcome-sub">
           Trace the two edges of one bed. IsoFold draws the dip isogons and gives its Ramsay class.
@@ -106,7 +107,7 @@ export function Welcome({ health, examples, loadingExample, onFile, onExample }:
       </main>
 
       <footer className="welcome-foot">
-        Ramsay dip-isogon method · engine <span className="mono">{health && health !== 'down' ? health.engine : '…'}</span>
+        engine <span className="mono">{health && health !== 'down' ? health.engine : '…'}</span>
       </footer>
     </div>
   )

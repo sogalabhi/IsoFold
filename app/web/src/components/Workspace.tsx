@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import type { Doc, Paths, Pt } from '../types'
+import type { Anchor, Doc, LineKey, Paths, Pt } from '../types'
 import { Canvas, type Tool } from './Canvas'
 import { IconImage, Logo } from './Icons'
 import { Panel } from './Panel'
@@ -9,24 +9,64 @@ interface Props {
   paths: Paths
   angles: number[]
   engine: string
+  onPaths: (key: LineKey, anchors: Anchor[]) => void
   onAngles: (a: number[]) => void
   onFile: (f: File) => void
   onHome: () => void
   onPhotoSize: (w: number, h: number) => void
 }
 
-export function Workspace({ doc, paths, angles, engine, onAngles, onFile, onHome, onPhotoSize }: Props) {
-  const [tool, setTool] = useState<Tool>(paths.outer.length ? 'pan' : 'pen')
+/** Remounted per photo (keyed by doc.url in App), so tracing state starts fresh. */
+export function Workspace({ doc, paths, angles, engine, onPaths, onAngles, onFile, onHome, onPhotoSize }: Props) {
+  // a line is "done" once finished with Done (examples arrive finished)
+  const [done, setDone] = useState<Record<LineKey, boolean>>({ outer: paths.outer.length > 1, inner: paths.inner.length > 1 })
+  const [active, setActive] = useState<LineKey>(done.outer ? (done.inner ? 'outer' : 'inner') : 'outer')
+  const [tool, setTool] = useState<Tool>(done.outer && done.inner ? 'edit' : 'pen')
   const [cursor, setCursor] = useState<Pt | null>(null)
   const [zoom, setZoom] = useState(1)
   const input = useRef<HTMLInputElement>(null)
 
-  const hint =
-    paths.outer.length < 2
-      ? 'Click along the outer edge of one bed. Drag while clicking to bend the curve.'
-      : paths.inner.length < 2
-        ? 'Now trace the inner edge of the same bed.'
-        : 'Drag any point to adjust; the class updates live.'
+  const finish = () => {
+    if (paths[active].length < 2) return
+    const next = { ...done, [active]: true }
+    setDone(next)
+    if (!next.outer) setActive('outer')
+    else if (!next.inner) setActive('inner')
+    else setTool('edit')
+  }
+
+  const undoPoint = () => {
+    const line = paths[active]
+    if (!line.length) return
+    onPaths(active, line.slice(0, -1))
+    setDone({ ...done, [active]: false }) // removing a point reopens the line
+    setTool('pen')
+  }
+
+  const clear = () => {
+    onPaths(active, [])
+    setDone({ ...done, [active]: false })
+    setTool('pen')
+  }
+
+  const pickStep = (key: LineKey) => {
+    setActive(key)
+    setTool(done[key] ? 'edit' : 'pen')
+  }
+
+  const drawing = !done[active]
+  const name = active === 'outer' ? 'outer' : 'inner'
+  const hint = (() => {
+    if (tool === 'pan') return 'Drag to move around the photo. Scroll to zoom.'
+    if (tool === 'pen' && drawing) {
+      const n = paths[active].length
+      if (n === 0) return `Click on the ${name} edge of one bed, starting at one end. Drag while clicking to bend the curve.`
+      if (n < 3) return `Keep clicking along the ${name} edge, past the hinge and down the other limb.`
+      return `Click the last point again, or press Done, to finish the ${name} line.`
+    }
+    if (tool === 'pen') return 'Both lines are finished. Use Edit to adjust them, or Clear a line to redraw it.'
+    return 'Drag a point to move it, or a handle to bend the curve. Hold Alt to bend one side only.'
+  })()
 
   return (
     <div className="ws">
@@ -61,9 +101,33 @@ export function Workspace({ doc, paths, angles, engine, onAngles, onFile, onHome
         </div>
       </header>
 
-      <Canvas doc={doc} paths={paths} tool={tool} onTool={setTool} onCursor={setCursor} onZoom={setZoom} onPhotoSize={onPhotoSize} />
+      <Canvas
+        doc={doc}
+        paths={paths}
+        done={done}
+        active={active}
+        tool={tool}
+        onTool={setTool}
+        onPaths={onPaths}
+        onFinish={finish}
+        onActive={setActive}
+        onCursor={setCursor}
+        onZoom={setZoom}
+        onPhotoSize={onPhotoSize}
+      />
 
-      <Panel doc={doc} paths={paths} angles={angles} onAngles={onAngles} />
+      <Panel
+        doc={doc}
+        paths={paths}
+        done={done}
+        active={active}
+        angles={angles}
+        onAngles={onAngles}
+        onStep={pickStep}
+        onUndo={undoPoint}
+        onClear={clear}
+        onDone={finish}
+      />
 
       <footer className="statusbar">
         <span className="status-hint">{hint}</span>

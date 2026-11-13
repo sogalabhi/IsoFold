@@ -15,12 +15,12 @@ export function pathD(anchors: Anchor[]): string {
   return d
 }
 
-/** Colour of an isogon / angle chip: violet (20°) → magenta (45°) → orange (70°). */
+/** Colour of an isogon / angle chip (green pencil): olive-lime (20°) → green (45°) → deep teal-green (70°). */
 export function angleColor(alpha: number): string {
   const stops: [number, [number, number, number]][] = [
-    [20, [167, 139, 250]],
-    [45, [244, 114, 182]],
-    [70, [251, 146, 60]],
+    [20, [128, 160, 22]],
+    [45, [52, 140, 70]],
+    [70, [14, 104, 96]],
   ]
   const a = Math.min(70, Math.max(20, alpha))
   const i = a <= 45 ? 0 : 1

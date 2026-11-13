@@ -82,10 +82,15 @@ export default function App() {
     <>
       {doc ? (
         <Workspace
+          key={doc.url}
           doc={doc}
           paths={paths}
           angles={angles}
           engine={health && health !== 'down' ? health.engine : 'offline'}
+          onPaths={(key, anchors) => {
+            setPaths((p) => ({ ...p, [key]: anchors }))
+            setDirty(true)
+          }}
           onAngles={setAngles}
           onFile={openFile}
           onHome={() => guard(() => setDoc(null))}

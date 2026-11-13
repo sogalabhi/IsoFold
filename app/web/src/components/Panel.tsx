@@ -7,33 +7,42 @@ import { RamsayChart } from './RamsayChart'
 interface Props {
   doc: Doc
   paths: Paths
+  done: Record<LineKey, boolean>
+  active: LineKey
   angles: number[]
   onAngles: (a: number[]) => void
+  onStep: (key: LineKey) => void
+  onUndo: () => void
+  onClear: () => void
+  onDone: () => void
 }
 
-export function Panel({ doc, paths, angles, onAngles }: Props) {
-  const done: Record<LineKey, boolean> = { outer: paths.outer.length > 1, inner: paths.inner.length > 1 }
-  const active = !done.outer ? 1 : !done.inner ? 2 : 3
+export function Panel({ doc, paths, done, active, angles, onAngles, onStep, onUndo, onClear, onDone }: Props) {
+  const both = done.outer && done.inner
+  const line = paths[active]
   const hand = doc.example?.hand
 
   return (
     <aside className="panel">
       <section className="panel-section">
         <ol className="steps">
-          <Step n={1} label="Outer line" color="var(--outer)" done={done.outer} active={active === 1} />
-          <Step n={2} label="Inner line" color="var(--inner)" done={done.inner} active={active === 2} />
-          <Step n={3} label="Angles & result" done={false} active={active === 3} />
+          <Step n={1} label="Outer line" sub={stepSub(paths.outer.length, done.outer)} color="var(--outer)" done={done.outer} active={active === 'outer' && !both} selected={active === 'outer'} onClick={() => onStep('outer')} />
+          <Step n={2} label="Inner line" sub={stepSub(paths.inner.length, done.inner)} color="var(--inner)" done={done.inner} active={active === 'inner' && !both} selected={active === 'inner'} onClick={() => onStep('inner')} />
+          <Step n={3} label="Angles & result" sub={both ? 'drag any point to adjust' : 'after both lines'} done={false} active={both} />
         </ol>
         <div className="step-actions">
-          <button className="btn btn-quiet" disabled>
+          <span className="step-actions-label">{active === 'outer' ? 'Outer' : 'Inner'} line:</span>
+          <button className="btn btn-quiet btn-sm" onClick={onUndo} disabled={!line.length}>
             <IconUndo /> Undo point
           </button>
-          <button className="btn btn-quiet" disabled>
+          <button className="btn btn-quiet btn-sm" onClick={onClear} disabled={!line.length}>
             <IconTrash /> Clear
           </button>
-          <button className="btn btn-accent" disabled>
-            <IconCheck /> Done
-          </button>
+          {!done[active] && (
+            <button className="btn btn-primary btn-sm" onClick={onDone} disabled={line.length < 2}>
+              <IconCheck /> Done
+            </button>
+          )}
         </div>
       </section>
 
@@ -71,11 +80,28 @@ export function Panel({ doc, paths, angles, onAngles }: Props) {
   )
 }
 
-function Step({ n, label, color, done, active }: { n: number; label: string; color?: string; done: boolean; active: boolean }) {
+const stepSub = (n: number, done: boolean) => (done ? `${n} points · click to edit or redraw` : n ? `${n} point${n > 1 ? 's' : ''} so far` : 'not started')
+
+interface StepProps {
+  n: number
+  label: string
+  sub: string
+  color?: string
+  done: boolean
+  active: boolean
+  selected?: boolean
+  onClick?: () => void
+}
+
+function Step({ n, label, sub, color, done, active, selected, onClick }: StepProps) {
+  const cls = `step${active ? ' is-active' : ''}${done ? ' is-done' : ''}${selected ? ' is-selected' : ''}${onClick ? ' is-clickable' : ''}`
   return (
-    <li className={`step${active ? ' is-active' : ''}${done ? ' is-done' : ''}`}>
+    <li className={cls} onClick={onClick}>
       <span className="step-num">{done ? <IconCheck width={14} height={14} /> : n}</span>
-      <span className="step-label">{label}</span>
+      <span className="step-text">
+        <span className="step-label">{label}</span>
+        <span className="step-sub">{sub}</span>
+      </span>
       {color && <span className="step-swatch" style={{ background: color }} />}
     </li>
   )
