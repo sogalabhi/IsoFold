@@ -4,6 +4,8 @@ import { angleColor, inFitRange } from '../geometry'
 import { IconCheck, IconInfo, IconPlus, IconTrash, IconUndo, IconX } from './Icons'
 import { RamsayChart } from './RamsayChart'
 import { ClassCard } from './ClassCard'
+import { RScale } from './RScale'
+import { AngleTable } from './AngleTable'
 
 interface Props {
   doc: Doc
@@ -25,6 +27,7 @@ export function Panel({ doc, paths, done, active, angles, result, updating, offl
   const both = done.outer && done.inner
   const line = paths[active]
   const hand = doc.example?.hand
+  const live = both && result && result.verdict !== 'refused' ? result : null
 
   return (
     <aside className="panel">
@@ -73,10 +76,24 @@ export function Panel({ doc, paths, done, active, angles, result, updating, offl
         )}
       </section>
 
+      {live && (
+        <section className="panel-section">
+          <h2 className="section-title">Where R sits</h2>
+          <RScale result={live} />
+        </section>
+      )}
+
       <section className="panel-section">
         <h2 className="section-title">Ramsay diagram</h2>
-        <RamsayChart ghost />
+        <RamsayChart result={live} hand={hand} />
       </section>
+
+      {live && (
+        <section className="panel-section">
+          <h2 className="section-title">Isogons at your angles</h2>
+          <AngleTable result={live} angles={angles} hand={hand} />
+        </section>
+      )}
     </aside>
   )
 }

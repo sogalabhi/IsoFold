@@ -65,7 +65,7 @@ def test_unreachable_and_display_only_angles():
     res = manual.classify(ex['outer'], ex['inner'], angles=[10, 80])
     assert all(not i['in_fit_range'] for i in res['isogons'])
     assert {(m['limb'], m['alpha']) for m in res['missing']} == {('left', 80), ('right', 80)}
-    assert 'beyond 75' in res['missing'][0]['why']
+    assert '75° or steeper' in res['missing'][0]['why']
 
 
 def test_hand_traces_are_confident_when_limbs_agree():

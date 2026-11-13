@@ -174,7 +174,7 @@ def classify(outer, inner, angles=(20, 40, 60)):
         for a in angles:
             p = got.get(a)
             if p is None:
-                why = (f'beyond {MAX_MATCH_DEG:.0f}°, where tangent matching is unreliable' if a > MAX_MATCH_DEG else
+                why = (f'{MAX_MATCH_DEG:.0f}° or steeper, where tangent matching is unreliable' if a >= MAX_MATCH_DEG - 0.5 else
                        f'this limb only turns {turn:.0f}°' if a > turn else
                        'no plausible match (isogon far longer than the bed is thick)')
                 missing.append(dict(limb=name, alpha=a, why=why))
