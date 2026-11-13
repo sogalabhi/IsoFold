@@ -4,7 +4,7 @@
 
 The project dataset contains 26 field photographs. A set of 12 distinct field folds has hand-traced boundaries decoded from CorelDraw drawings and is used as the app’s example set. Some examples have corresponding hand-measured thickness tables from project spreadsheets.
 
-**[VERIFY]** Confirm counts and inclusion criteria against `dataset/manifest.json`, `dataset/traces/`, and the app’s example index. State separately the number of photographs, the number of trace files, and the number of distinct fold examples where these differ.
+**[VERIFY]** Confirm counts and inclusion criteria against `../../dataset/manifest.json`, `../../dataset/traces/`, and the app’s example index. State separately the number of photographs, the number of trace files, and the number of distinct fold examples where these differ.
 
 ## 3.2 Automatic-detection trials
 

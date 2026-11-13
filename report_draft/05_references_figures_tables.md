@@ -40,12 +40,13 @@ The repository already contains 14 current-app screenshots under `IsoFold/docs/f
 
 ## Other figures and tables to prepare
 
-1. Fold geometry schematic with hinge, limbs, inflections, axial trace, and dip-isogon elements; identify whether author-drawn or adapted and cite accordingly.
-2. A compact automatic-detection trial figure with representative classical-tracing and SAM outcomes, only if source images and captions can be documented. Existing older experiment images are in `IsoFold_UI_handoff/results/` and `IsoFold/app/backend/samples/`; verify what each depicts before use. No clearly identified SAM comparison screenshot set has yet been found.
-3. Table comparing hand and app normalized-thickness values for Fold 11 and Fold 3.
-4. Summary table for all 12 examples with left/right limb class, R, verdict, and confidence reason; verify exact outputs before finalizing.
-5. Optional table summarizing the two automatic-detection trials, their evaluation criteria, and outcomes. Avoid implying a statistically broad benchmark from these exploratory trials.
-6. Avoid the current Figure 1.5 U-Net pipeline unless explicitly relabeled as **proposed future work**.
+1. **Prepared:** `figures/fold_geometry_notation.svg` shows fold-profile elements and notation (Figure 2.1). Verify the method citation and caption before insertion.
+2. **Prepared:** `figures/ramsay_class_curves.svg` plots the five ideal normalized-thickness curves derived from the thickness law (Figure 2.2). Verify the Ramsay source and label these as illustrative.
+3. A compact automatic-detection trial figure with representative classical-tracing and SAM outcomes, only if source images and captions can be documented. Existing older experiment images are in `../../IsoFold_UI_handoff/results/` and `app/backend/samples/`; verify what each depicts before use. No clearly identified SAM comparison screenshot set has yet been found.
+4. Table comparing hand and app normalized-thickness values for Fold 11 and Fold 3.
+5. Summary table for all 12 examples with left/right limb class, R, verdict, and confidence reason; verify exact outputs before finalizing.
+6. Optional table summarizing the two automatic-detection trials, their evaluation criteria, and outcomes. Avoid implying a statistically broad benchmark from these exploratory trials.
+7. Avoid the current Figure 1.5 U-Net pipeline unless explicitly relabeled as **proposed future work**.
 
 # Final verification checklist
 

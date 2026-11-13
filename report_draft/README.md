@@ -15,6 +15,6 @@ This folder contains the report content split into front matter and one file per
 
 - Work through the chapters in order. Keep the distinction between completed work and future work explicit.
 - Items marked **[VERIFY]**, **[SOURCE CHECK]**, or **[TEAM INPUT]** are unresolved; do not silently remove them or turn them into asserted facts.
-- Figure assets are already available in `../IsoFold/docs/figures/trace/`. The draft recommends a curated selection, not all 14 screenshots. Preserve aspect ratio and recapture/crop the narrow results-panel screenshot rather than stretching it.
+- Figure assets are already available in `../docs/figures/trace/`. The draft recommends a curated selection, not all 14 screenshots. Preserve aspect ratio and recapture/crop the narrow results-panel screenshot rather than stretching it.
 - Before transferring content into Word, confirm the dataset counts, detection trial records, Fold 3B discrepancy, citations, and front-matter details.
-- [REPORT_CONTENT_DRAFT.md](../REPORT_CONTENT_DRAFT.md) is a pointer to this folder. Update the chapter files as the working content.
+- The workspace-level [REPORT_CONTENT_DRAFT.md](../../REPORT_CONTENT_DRAFT.md) points to this folder. Update the chapter files here as the working content.
