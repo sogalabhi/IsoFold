@@ -1,0 +1,11 @@
+# Python >= 3.11 (tested on 3.13). foldclass itself: pip install -e ../../foldclass
+fastapi
+uvicorn[standard]
+python-multipart
+numpy>=2.5
+scipy>=1.18
+opencv-python-headless>=5.0
+scikit-image>=0.26
+matplotlib>=3.11
+pytest
+httpx
