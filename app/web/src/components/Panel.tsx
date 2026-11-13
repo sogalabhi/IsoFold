@@ -26,9 +26,10 @@ interface Props {
   constructing: boolean
   onConstruction: () => void
   onWorking: () => void
+  on3D: () => void
 }
 
-export function Panel({ doc, paths, done, active, angles, result, updating, offline, onAngles, onStep, onUndo, onClear, onDone, reveal, constructing, onConstruction, onWorking }: Props) {
+export function Panel({ doc, paths, done, active, angles, result, updating, offline, onAngles, onStep, onUndo, onClear, onDone, reveal, constructing, onConstruction, onWorking, on3D }: Props) {
   const both = done.outer && done.inner
   const line = paths[active]
   const hand = doc.example?.hand
@@ -83,9 +84,14 @@ export function Panel({ doc, paths, done, active, angles, result, updating, offl
           </button>
         )}
         {live && !constructing && (
-          <button className="btn btn-working" onClick={onWorking}>
-            Show the working: t₀, t′α, R and the class rule
-          </button>
+          <div className="extra-actions">
+            <button className="btn btn-working" onClick={onWorking}>
+              Show the working
+            </button>
+            <button className="btn btn-working" onClick={on3D}>
+              3D view
+            </button>
+          </div>
         )}
         {hand && !(both && result && result.verdict !== 'refused') && (
           <div className="hand-card">

@@ -6,6 +6,7 @@ import { IconImage, Logo } from './Icons'
 import { Panel } from './Panel'
 import { Player } from './Player'
 import { WorkedSheet } from './WorkedSheet'
+import { Fold3D } from './Fold3D'
 import { buildTimeline, frameAt, isoKey, type Timeline } from '../construction'
 
 interface Props {
@@ -77,8 +78,12 @@ export function Workspace({ doc, paths, angles, engine, onPaths, onAngles, onFil
   }, [ready, paths, angles, measure])
 
   const [working, setWorking] = useState(false)
+  const [view3d, setView3d] = useState(false)
   useEffect(() => {
-    if (!result || result.verdict === 'refused') setWorking(false)
+    if (!result || result.verdict === 'refused') {
+      setWorking(false)
+      setView3d(false)
+    }
   }, [result])
 
   // ---- "Show construction": replays the hand method from a snapshot of the current result
@@ -283,8 +288,17 @@ export function Workspace({ doc, paths, angles, engine, onPaths, onAngles, onFil
         reveal={reveal}
         constructing={!!show}
         onConstruction={startConstruction}
-        onWorking={() => setWorking(true)}
+        onWorking={() => {
+          setView3d(false)
+          setWorking(true)
+        }}
+        on3D={() => {
+          setWorking(false)
+          setView3d(true)
+        }}
       />
+
+      {view3d && result && result.verdict !== 'refused' && <Fold3D result={result} doc={doc} title={doc.name} onClose={() => setView3d(false)} />}
 
       {working && result && result.verdict !== 'refused' && (
         <WorkedSheet result={result} angles={angles} hand={doc.example?.hand} title={doc.name} onClose={() => setWorking(false)} />
