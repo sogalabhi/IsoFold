@@ -1,4 +1,5 @@
 import type { HandMeasurement, Result } from '../types'
+import { Help } from './Help'
 
 export const CLASS_MEANING: Record<string, string> = {
   '1A': 'Strongly convergent isogons; limbs thicker than the hinge',
@@ -63,9 +64,13 @@ export function ClassCard({ result, ready, updating, offline, hand, concealed }:
         <div className="class-big">{big}</div>
         <div className="class-head-text">
           <span className="verdict">
-            <span className="verdict-mark">{v.mark}</span> {v.label}
+            <span className="verdict-mark">{v.mark}</span> {v.label} <Help term="confidence" />
           </span>
-          {meaning && <span className="class-meaning">{meaning}</span>}
+          {meaning && (
+            <span className="class-meaning">
+              {meaning} <Help term="classes" />
+            </span>
+          )}
         </div>
         {updating && <div className="spinner spinner-sm" />}
       </div>
@@ -74,7 +79,7 @@ export function ClassCard({ result, ready, updating, offline, hand, concealed }:
         <>
           <div className="class-r mono">
             R <b>{fmt(o.R)}</b>
-            <span className="class-sigma"> ± {fmt(o.sigma_R)}</span>
+            <span className="class-sigma"> ± {fmt(o.sigma_R)}</span> <Help term="R" />
           </div>
           <div className="class-limbs">
             {limbs.map((l) => {

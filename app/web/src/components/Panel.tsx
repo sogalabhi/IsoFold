@@ -6,6 +6,7 @@ import { RamsayChart } from './RamsayChart'
 import { ClassCard } from './ClassCard'
 import { RScale } from './RScale'
 import { AngleTable } from './AngleTable'
+import { Help } from './Help'
 
 interface Props {
   doc: Doc
@@ -24,9 +25,10 @@ interface Props {
   reveal: { shown: Set<string>; current?: string; showFit: boolean; concealClass: boolean } | null
   constructing: boolean
   onConstruction: () => void
+  onWorking: () => void
 }
 
-export function Panel({ doc, paths, done, active, angles, result, updating, offline, onAngles, onStep, onUndo, onClear, onDone, reveal, constructing, onConstruction }: Props) {
+export function Panel({ doc, paths, done, active, angles, result, updating, offline, onAngles, onStep, onUndo, onClear, onDone, reveal, constructing, onConstruction, onWorking }: Props) {
   const both = done.outer && done.inner
   const line = paths[active]
   const hand = doc.example?.hand
@@ -63,7 +65,9 @@ export function Panel({ doc, paths, done, active, angles, result, updating, offl
 
       <section className="panel-section">
         <h2 className="section-title">
-          Dip angles
+          <span className="title-with-help">
+            Dip angles <Help term="isogon" />
+          </span>
           <span className="hint" title="The class always uses the engine's full 20–70° grid. These angles only choose which isogons are drawn and listed.">
             <IconInfo width={14} height={14} /> display only
           </span>
@@ -76,6 +80,11 @@ export function Panel({ doc, paths, done, active, angles, result, updating, offl
         {live && live.hinge && (
           <button className="btn btn-primary btn-construction" onClick={onConstruction} disabled={constructing}>
             <IconPlay width={15} height={15} /> {constructing ? 'Construction playing…' : 'Show construction'}
+          </button>
+        )}
+        {live && !constructing && (
+          <button className="btn btn-working" onClick={onWorking}>
+            Show the working: t₀, t′α, R and the class rule
           </button>
         )}
         {hand && !(both && result && result.verdict !== 'refused') && (
@@ -91,19 +100,31 @@ export function Panel({ doc, paths, done, active, angles, result, updating, offl
 
       {live && !reveal?.concealClass && (
         <section className="panel-section">
-          <h2 className="section-title">Where R sits</h2>
+          <h2 className="section-title">
+            <span className="title-with-help">
+              Where R sits <Help term="rscale" />
+            </span>
+          </h2>
           <RScale result={live} />
         </section>
       )}
 
       <section className="panel-section" ref={chartRef}>
-        <h2 className="section-title">Ramsay diagram</h2>
+        <h2 className="section-title">
+          <span className="title-with-help">
+            Ramsay diagram <Help term="chart" />
+          </span>
+        </h2>
         <RamsayChart result={live} hand={hand} reveal={reveal} />
       </section>
 
       {live && (
         <section className="panel-section">
-          <h2 className="section-title">Isogons at your angles</h2>
+          <h2 className="section-title">
+            <span className="title-with-help">
+              Isogons at your angles <Help term="tprime" />
+            </span>
+          </h2>
           <AngleTable result={live} angles={angles} hand={hand} />
         </section>
       )}

@@ -1676,3 +1676,277 @@ code {
     box-shadow: 0 0 0 6px rgba(47, 125, 74, 0.25);
   }
 }
+
+/* ---------- help "?" ---------- */
+
+.help {
+  display: inline-grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  padding: 0;
+  margin-left: 2px;
+  border-radius: 50%;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper-2);
+  color: var(--ink-2);
+  font: 600 11px/1 var(--mono);
+  letter-spacing: 0;
+  text-transform: none;
+  vertical-align: 1px;
+  cursor: help;
+}
+.help:hover,
+.help[aria-expanded='true'] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper-2);
+}
+.help-pop {
+  position: fixed;
+  z-index: 100;
+  width: min(330px, calc(100vw - 16px));
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: #efe9dd;
+  font: 400 13px/1.45 var(--font);
+  box-shadow: 0 12px 32px rgba(31, 28, 23, 0.35);
+  pointer-events: none;
+  animation: fade 0.12s;
+}
+.help-title {
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 6px;
+}
+.help-pop p {
+  margin: 0;
+}
+.help-pop p + p {
+  margin-top: 6px;
+}
+.title-with-help {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.btn-working {
+  width: 100%;
+  justify-content: center;
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+/* ---------- worked calculation sheet ---------- */
+
+.sheet {
+  grid-area: canvas;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--paper);
+  border-right: 1px solid var(--rule);
+  animation: fade 0.15s;
+}
+.sheet-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--rule);
+  background: var(--paper-2);
+}
+.sheet-head h2 {
+  margin: 2px 0 0;
+  font-size: 19px;
+  font-weight: 600;
+}
+.sheet-kicker {
+  font: 600 11px var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.sheet-tabs {
+  display: flex;
+  margin-left: auto;
+  border: 1px solid var(--rule-strong);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.sheet-tab {
+  height: 32px;
+  padding: 0 14px;
+  border: 0;
+  background: var(--paper-2);
+  color: var(--ink-2);
+  font-weight: 500;
+  cursor: pointer;
+}
+.sheet-tab + .sheet-tab {
+  border-left: 1px solid var(--rule-strong);
+}
+.sheet-tab.is-on {
+  background: var(--ink);
+  color: var(--paper-2);
+}
+.sheet-body {
+  overflow-y: auto;
+  padding: 8px 24px 40px;
+}
+.sheet-step {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 14px;
+  padding: 20px 0;
+  border-bottom: 1px dashed var(--rule-strong);
+  max-width: 980px;
+}
+.step-no {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper-2);
+  font: 600 14px var(--mono);
+}
+.sheet-step h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 3px 0 6px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.sheet-step p {
+  margin: 0 0 10px;
+  color: var(--ink-2);
+  max-width: 760px;
+}
+.sheet-step p.small {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  margin-top: 8px;
+}
+.formula {
+  font-family: var(--mono);
+  font-size: 0.95em;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--paper-3);
+  color: var(--ink);
+  white-space: nowrap;
+}
+.calc {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--rule);
+  background: var(--paper-2);
+  font-size: 13.5px;
+}
+.calc-result {
+  padding-top: 6px;
+  border-top: 1px solid var(--rule);
+  font-size: 15px;
+}
+.calc-final {
+  display: block;
+  margin-top: 10px;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.muted {
+  color: var(--ink-3);
+}
+.sheet-more {
+  margin-top: 10px;
+}
+.sheet-table-wrap {
+  overflow-x: auto;
+  margin-top: 8px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--paper-2);
+}
+.sheet-table {
+  width: 100%;
+  border-collapse: collapse;
+  font: 13px var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+.sheet-table th {
+  padding: 8px 12px;
+  text-align: right;
+  font: 600 11.5px var(--font);
+  color: var(--ink-2);
+  background: var(--paper-3);
+  border-bottom: 1px solid var(--rule-strong);
+  white-space: nowrap;
+}
+.sheet-table td {
+  padding: 6px 12px;
+  text-align: right;
+  border-bottom: 1px solid var(--rule);
+  white-space: nowrap;
+}
+.sheet-table th:first-child,
+.sheet-table td:first-child {
+  text-align: left;
+}
+.sheet-table td .chip-dot {
+  display: inline-block;
+  margin-right: 4px;
+}
+.sheet-table .em {
+  font-weight: 600;
+}
+.sheet-table .hand {
+  color: var(--warn);
+  font-weight: 600;
+}
+.sheet-table .why {
+  text-align: left;
+  font-family: var(--font);
+  color: var(--ink-3);
+}
+.sheet-table tr.is-display-only td {
+  background: rgba(31, 28, 23, 0.04);
+  color: var(--ink-3);
+}
+.sheet-table.is-compact td {
+  padding: 3px 12px;
+}
+.rules {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.rules li {
+  display: grid;
+  grid-template-columns: 130px 18px 80px 1fr;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  color: var(--ink-3);
+}
+.rules li.is-hit {
+  border-color: var(--ok);
+  background: #eef5ef;
+  color: var(--ink);
+}
+.rule-test {
+  font-size: 13px;
+}
+.rule-meaning {
+  font-size: 13px;
+}

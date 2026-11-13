@@ -65,6 +65,8 @@ export interface Isogon {
   tan_q: Pt
   t_px: number
   t_prime: number | null
+  T_px: number // thickness measured parallel to the axial trace
+  T_prime: number | null
   in_fit_range: boolean
 }
 
@@ -77,6 +79,7 @@ export interface LimbResult {
   alpha_span_deg: number | null
   n_isogons: number
   max_dip_deg: number | null
+  class_window: number // band half-width around R = 0 (Class 2) and R = 1 (Class 1B)
   warnings: string[]
 }
 
@@ -92,7 +95,7 @@ export interface Result {
   cut: { outer: Pt[]; inner: Pt[] } | null
   isogons: Isogon[]
   missing: { limb: Limb; alpha: number; why: string }[]
-  chart: Partial<Record<Limb, { points: [number, number][]; fit: { R: number; t0_px: number } }>>
+  chart: Partial<Record<Limb, { points: [number, number][]; rows: [number, number, number][]; fit: { R: number; t0_px: number } }>>
   engine: string
   timings_ms: Record<string, number>
 }

@@ -154,11 +154,16 @@ def classify(outer, inner, angles=(20, 40, 60)):
             R=_r(fit.R, 3) if fit else None, sigma_R=_r(fit.sigma_R, 3) if fit else None,
             t0_px=_r(fit.t0) if fit else None,
             alpha_span_deg=_r(cl.alpha_span) if cl else None, n_isogons=cl.n_samples if cl else len(r['isogons'][eng]),
+            # half-width of the band around R = 0 (Class 2) and R = 1 (Class 1B) used by geometry.classify
+            class_window=_r(max(config.R_AMBIGUITY_SIGMA * fit.sigma_R, config.R_MIN_AMBIGUITY_WINDOW)
+                            if fit and np.isfinite(fit.sigma_R) else config.R_MIN_AMBIGUITY_WINDOW, 3),
             max_dip_deg=_r(dips[k]),
             warnings=list(cl.warnings) if cl else ['fewer than 3 isogon pairs on this limb, so it could not be fitted'])
         if fit:
             chart[name] = dict(
                 points=[[_r(np.degrees(p.alpha), 2), _r(p.t / fit.t0, 4)] for p in r['isogons'][eng]],
+                # the full table the fit used: alpha (deg), t_alpha (px), T_alpha (px)
+                rows=[[_r(np.degrees(p.alpha), 2), _r(p.t, 2), _r(p.T, 2)] for p in r['isogons'][eng]],
                 fit=dict(R=_r(fit.R, 4), t0_px=_r(fit.t0, 2)))
 
         # display isogons at the user's angles, same arcs / hinges / bounds / axial trace as the fit
@@ -186,6 +191,7 @@ def classify(outer, inner, angles=(20, 40, 60)):
             isogons.append(dict(limb=name, alpha=a, p=_pt(p.p), q=_pt(p.q), foot=_pt(foot),
                                 tan_p=_pt4(tp), tan_q=_pt4(tq),
                                 t_px=_r(p.t), t_prime=_r(p.t / fit.t0, 3) if fit else None,
+                                T_px=_r(p.T), T_prime=_r(p.T / fit.t0, 3) if fit else None,
                                 in_fit_range=FIT_RANGE[0] <= a <= FIT_RANGE[1]))
 
     # verdict

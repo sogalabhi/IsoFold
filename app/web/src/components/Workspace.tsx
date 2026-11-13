@@ -5,6 +5,7 @@ import { Canvas, type Tool } from './Canvas'
 import { IconImage, Logo } from './Icons'
 import { Panel } from './Panel'
 import { Player } from './Player'
+import { WorkedSheet } from './WorkedSheet'
 import { buildTimeline, frameAt, isoKey, type Timeline } from '../construction'
 
 interface Props {
@@ -75,6 +76,11 @@ export function Workspace({ doc, paths, angles, engine, onPaths, onAngles, onFil
     else setResult(null)
   }, [ready, paths, angles, measure])
 
+  const [working, setWorking] = useState(false)
+  useEffect(() => {
+    if (!result || result.verdict === 'refused') setWorking(false)
+  }, [result])
+
   // ---- "Show construction": replays the hand method from a snapshot of the current result
   const [show, setShow] = useState<{ result: Result; tl: Timeline } | null>(null)
   const [t, setT] = useState(0)
@@ -83,6 +89,7 @@ export function Workspace({ doc, paths, angles, engine, onPaths, onAngles, onFil
 
   const startConstruction = () => {
     if (!result || result.verdict === 'refused' || !result.hinge) return
+    setWorking(false)
     setShow({ result, tl: buildTimeline(result, angles) })
     setT(0)
     setPlaying(true)
@@ -276,7 +283,12 @@ export function Workspace({ doc, paths, angles, engine, onPaths, onAngles, onFil
         reveal={reveal}
         constructing={!!show}
         onConstruction={startConstruction}
+        onWorking={() => setWorking(true)}
       />
+
+      {working && result && result.verdict !== 'refused' && (
+        <WorkedSheet result={result} angles={angles} hand={doc.example?.hand} title={doc.name} onClose={() => setWorking(false)} />
+      )}
 
       <footer className="statusbar">
         <span className="status-hint">{hint}</span>
